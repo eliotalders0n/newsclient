@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^5.7.4",
+    "@capacitor/android": "^5.7.6",
+    "@capacitor/core": "^6.1.0",
     "@capacitor/ios": "^5.7.4",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
@@ -59,6 +60,8 @@
     ]
   },
   "devDependencies": {
-    "sass": "^1.71.1"
+    "@capacitor/cli": "^6.1.0",
+    "sass": "^1.71.1",
+    "typescript": "^5.5.3"
   }
 }

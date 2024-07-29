@@ -9,6 +9,7 @@ import Ministries from "./comps/pages/ministires";
 import Resources from "./comps/pages/resources";
 import Podcast from "./comps/pages/podcast";
 import PodcastList from "./comps/pages/podcastList";
+import Chat from "./comps/pages/chat";
 
 // ----------------------------------------------------------------------
 
@@ -22,6 +23,7 @@ export default function LoginRoutes() {
         <Route exact path="/podcast" element={<Podcast />} />
         <Route exact path="/podcastlist/:ministry" element={< PodcastList/>} />
         <Route path="/ministries" element={<Ministries/>} />
+        <Route path="/chat" element={<Chat />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/home" element={<Landing />} />
         <Route path="/reels" element={<ReelCard />} />

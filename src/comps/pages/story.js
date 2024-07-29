@@ -195,10 +195,9 @@ function Story() {
   const [open, setOpen] = React.useState(false);
 
   const imageData = data.imagesUrls.map((imageUrl) => ({
-    src: imageUrl, 
+    src: imageUrl,
     alt: "",
   }));
-
 
   useEffect(() => {
     const fetchRelatedArticles = async () => {
@@ -226,7 +225,7 @@ function Story() {
     fetchRelatedArticles();
   }, [data.id, data.ministry, data.title]);
 
-  console.log("articles are : " + relatedArticles)
+  console.log("articles are : " + relatedArticles);
   return (
     <div
       style={{
@@ -247,12 +246,12 @@ function Story() {
           <h2 className="display-5">{data.title}</h2>
           <Stack direction="horizontal">
             <Image
-              src={author.photoURL}
+              src={author?.photoURL || "zanis.jpeg"}
               alt=""
               style={{ width: "1vh", height: "1vh", marginRight: "5px" }}
               roundedCircle
             />
-            {author.firstName} {author.lastName}
+            {author?.firstName || "user"} {author?.lastName || ""}
           </Stack>
           <Card.Text
             style={{
@@ -396,7 +395,7 @@ function Story() {
               }}
             >
               <Image
-                src={author.photoURL}
+                src={author?.photoURL || "zanis.jpeg"}
                 style={{
                   width: "6vh",
                   height: "6vh",
@@ -421,32 +420,34 @@ function Story() {
             </Stack>
           ))}
         </Stack>
-        
+
         <div>
-        <h2 className="text-center mb-4">Related Articles</h2>
-        <Row xs={1} md={2} lg={3} className="g-4">
-          {relatedArticles.map((article) => (
-            <Col key={article.id}>
-              <Card
-                bg={theme === "light" ? "light" : "dark"}
-                text={theme === "dark" ? "light" : "dark"}
-              >
-                <Card.Img variant="top" src={article.imagesUrls[0]} />
-                <Card.Body>
-                  <Card.Title>{article.title}</Card.Title>
-                  <Card.Text>{article.content.slice(0, 100)}...</Card.Text>
-                  <Button
-                    variant={theme === "light" ? "primary" : "outline-primary"}
-                    href={`/story/${article.id}`}
-                  >
-                    Read More
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </div>
+          <h2 className="text-center mb-4">Related Articles</h2>
+          <Row xs={1} md={2} lg={3} className="g-4">
+            {relatedArticles.map((article) => (
+              <Col key={article.id}>
+                <Card
+                  bg={theme === "light" ? "light" : "dark"}
+                  text={theme === "dark" ? "light" : "dark"}
+                >
+                  <Card.Img variant="top" src={article.imagesUrls[0]} />
+                  <Card.Body>
+                    <Card.Title>{article.title}</Card.Title>
+                    <Card.Text>{article.content.slice(0, 100)}...</Card.Text>
+                    <Button
+                      variant={
+                        theme === "light" ? "primary" : "outline-primary"
+                      }
+                      href={`/story/${article.id}`}
+                    >
+                      Read More
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </div>
       </div>
       <Modal show={showShare} onHide={handleShareClose}>
         <Modal.Body
@@ -482,7 +483,9 @@ function Story() {
                 <TwitterShareButton
                   title="Ministry of Information and Media"
                   url={`https://zanis-pro.web.app/story/${data.id}`}
-                  via={"Ministry of Information and Media. To Inform, Educate and Entertain the Nation"}
+                  via={
+                    "Ministry of Information and Media. To Inform, Educate and Entertain the Nation"
+                  }
                 >
                   <i className="bi bi-twitter"></i>
                 </TwitterShareButton>

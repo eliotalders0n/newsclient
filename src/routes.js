@@ -11,6 +11,7 @@ import Ministries from "./comps/pages/ministires";
 import Resources from "./comps/pages/resources";
 import Podcast from "./comps/pages/podcast";
 import PodcastList from "./comps/pages/podcastList";
+import Chat from "./comps/pages/chat";
 
 
 function Routers(props) {
@@ -25,6 +26,7 @@ function Routers(props) {
           <Route exact path="/podcastlist/:ministry" element={< PodcastList/>} />
           <Route path="/ministries" element={<Ministries/>} />
           <Route path="/reels" element={<ReelCard />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/profile" element={<GoogleSignInButton />} />
           <Route path="/story/:id" element={<Story />} />
