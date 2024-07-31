@@ -233,6 +233,7 @@ function Story() {
         color: theme === "light" ? "#111111" : "white",
         minHeight: "100vh",
         padding: "12vh 0",
+        marginTop: "8vh",
       }}
     >
       <div>

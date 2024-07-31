@@ -17,6 +17,7 @@ function Podcast() {
         color: theme === "light" ? "#111111" : "white",
         minHeight: "100vh",
         padding: "10vh 0",
+        marginTop: "8vh",
       }}
     >
       {/* <div className="col-4">

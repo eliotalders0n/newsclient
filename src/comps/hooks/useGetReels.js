@@ -9,7 +9,8 @@ const useGetReels = (id) => {
       .firestore()
       .collection("Articles")
       .where("video", "==", true)
-      .where("status","==","approved")
+      .where("status", "==", "approved")
+      .orderBy("createdAt", "desc")
       .onSnapshot((doc) => {
         const quotes = [];
         doc.docs.forEach((document) => {

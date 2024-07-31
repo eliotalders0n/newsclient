@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { Card, Stack, Container } from "react-bootstrap";
-import { Grid, Button, Divider, Typography, Modal, Box, Paper } from '@mui/material'
+import {
+  Grid,
+  Button,
+  Divider,
+  Typography,
+  Modal,
+  Box,
+  Paper,
+} from "@mui/material";
 import useGetResources from "../hooks/useGetResources";
 import { useTheme } from "../template/themeContext";
 
@@ -19,7 +27,6 @@ const Resources = () => {
     setOpenModal(false);
   };
 
-
   const { theme } = useTheme();
 
   return (
@@ -31,6 +38,7 @@ const Resources = () => {
         color: theme === "light" ? "#111111" : "white",
         minHeight: "100vh",
         padding: "10vh 1vh 10vh 1vh",
+        marginTop: "8vh",
       }}
     >
       <h2
@@ -80,7 +88,7 @@ const Resources = () => {
           </Card>
         ))}
       </Stack>
-       <Modal
+      <Modal
         open={openModal}
         onClose={handleCloseModal}
         aria-labelledby="document-preview"

@@ -133,7 +133,8 @@ const Profile = () => {
       "state_changed",
       (snapshot) => {
         // Calculate upload progress
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setUploadProgress(progress);
       },
       (error) => {
@@ -203,21 +204,23 @@ const Profile = () => {
         color: theme === "light" ? "#111111" : "white",
         minHeight: "100vh",
         padding: "12vh 2vh 12vh 2vh",
+        marginTop: "8vh",
       }}
     >
       <Stack direction="horizontal" gap={3}>
         <h2>Profile</h2>
         <Button
-        variant="contained"
-        onClick={toggleTheme}
-        className="p-2 ms-auto"
-        size="small"
-        style={{ backgroundColor: theme === "light" ? "#111111" : "white",
-        color: theme === "light" ? "white" : "#111111", }}
-      >
-        {theme === "light" ? "Dark Mode" : "Light Mode"}
-      </Button>
-        
+          variant="contained"
+          onClick={toggleTheme}
+          className="p-2 ms-auto"
+          size="small"
+          style={{
+            backgroundColor: theme === "light" ? "#111111" : "white",
+            color: theme === "light" ? "white" : "#111111",
+          }}
+        >
+          {theme === "light" ? "Dark Mode" : "Light Mode"}
+        </Button>
       </Stack>
 
       <Stack
@@ -290,23 +293,35 @@ const Profile = () => {
           Remove Picture
         </Button>
       </Stack>
-      {uploading && <LinearProgress variant="determinate" value={uploadProgress} />}
+      {uploading && (
+        <LinearProgress variant="determinate" value={uploadProgress} />
+      )}
       <p className="text-center">
         {user_ && user_.firstName} {user_ && user_.lastName} <br />{" "}
         {user_ && user_.email}
       </p>
-      
+
       <Stack>
-      <Button variant="contained" size="small" style={{width: "40%", marginLeft: "30%", backgroundColor: theme === "light" ? "#111111" : "white",
-        color: theme === "light" ? "white" : "#111111", }}  onClick={() => Logout()}>
+        <Button
+          variant="contained"
+          size="small"
+          style={{
+            width: "40%",
+            marginLeft: "30%",
+            backgroundColor: theme === "light" ? "#111111" : "white",
+            color: theme === "light" ? "white" : "#111111",
+          }}
+          onClick={() => Logout()}
+        >
           Logout
         </Button>
-      <br/>
+        <br />
         <Form onSubmit={handleAddFeedback}>
           <h2>Feedback</h2>
           <p className="lead">
-            Any errors, bugs or issues you are facing can be reported here.
-            Including news that goes against our community guidelines
+            Spotted an issue in your community or neighbourhood that needs to be
+            addressed or fixed? Report it here! Please also flag any content
+            that doesn't adhere to our community guidelines.
           </p>
           <Form.Control
             as="textarea"
@@ -323,8 +338,16 @@ const Profile = () => {
             required
           />
           <br />
-          <Button type="submit" disabled={submitting} variant="contained" size="lg" style={{backgroundColor: theme === "light" ? "#111111" : "white",
-        color: theme === "light" ? "white" : "#111111", }}>
+          <Button
+            type="submit"
+            disabled={submitting}
+            variant="contained"
+            size="lg"
+            style={{
+              backgroundColor: theme === "light" ? "#111111" : "white",
+              color: theme === "light" ? "white" : "#111111",
+            }}
+          >
             {submitting ? "Submitting..." : "Submit"}
           </Button>
         </Form>

@@ -55,6 +55,7 @@ const ReelCard = () => {
         color: theme === "light" ? "#111111" : "white",
         minHeight: "100vh",
         padding: "10vh 3vh 10vh 3vh",
+        marginTop: "8vh",
       }}
     >
       <h2

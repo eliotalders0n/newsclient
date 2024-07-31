@@ -18,7 +18,6 @@ import firebase from "../../firebase";
 import DOMPurify from "dompurify";
 import { useTheme } from "../template/themeContext";
 import useGetMinistries from "../hooks/useGetMinistries";
-import { BorderColor } from "@mui/icons-material";
 
 function Landing() {
   const navigate = useNavigate();
@@ -28,7 +27,7 @@ function Landing() {
   const [authors, setAuthors] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const { theme } = useTheme();
-  const Ministries = useGetMinistries().docs;
+  const { docs: ministries } = useGetMinistries();
   const [showShare, setShowShare] = useState(false);
 
   useEffect(() => {
@@ -114,6 +113,7 @@ function Landing() {
         color: theme === "light" ? "#111111" : "white",
         minHeight: "100vh",
         padding: "12vh 3vh 12vh 3vh",
+        marginTop: "8vh",
       }}
     >
       {/* Search */}
@@ -123,22 +123,25 @@ function Landing() {
             placeholder="Search"
             aria-label="Search"
             aria-describedby="basic-addon2"
-            style={{ backgroundColor: "rgb(30,30,30)", color: "white", border: "none" }}
+            style={{
+              backgroundColor: "rgb(30,30,30)",
+              color: "white",
+              border: "none",
+            }}
             onChange={handleSearch}
           />
-         <Button
-          size="sm"
-          onClick={resetFilters}
-          style={{
-            width: "20%",
-            backgroundColor: "rgb(30,30,30)",
-            border: "none",
-          }}
-        >
-          Reset
-        </Button>
+          <Button
+            size="sm"
+            onClick={resetFilters}
+            style={{
+              width: "20%",
+              backgroundColor: "rgb(30,30,30)",
+              border: "none",
+            }}
+          >
+            Reset
+          </Button>
         </InputGroup>
-        
       </Stack>
       <br />
 
@@ -150,7 +153,7 @@ function Landing() {
           overflowX: "scroll",
           fontSize: "12px",
           overflowY: "hidden",
-          scrollbarWidth: "thin", // Use camelCase for property names
+          scrollbarWidth: "thin",
           "&::-webkit-scrollbar": {
             width: "1px",
             backgroundColor: "#F5F5F5",
@@ -162,21 +165,20 @@ function Landing() {
           },
         }}
       >
-        {Ministries.map((ministry) => (
+        {ministries.map((ministry) => (
           <Stack
             key={ministry.id}
-            onClick={() => filterArticlesByMinistry(ministry.name)}
-            style={{ cursor: "pointer", fontFamily: "Martel Sans"}}
+            onClick={() => filterArticlesByMinistry(ministry.id)}
+            style={{ cursor: "pointer", fontFamily: "Martel Sans" }}
           >
             <Image
               src={ministry.img}
               alt=""
-              style={{ width: "6vh", display: "block", 
-              margin: "auto" }}
+              style={{ width: "6vh", display: "block", margin: "auto" }}
               roundedCircle
             />
-            <p style={{width: "80px", textAlign: "center"}}>
-          {ministry.name.substring(0, 10)}
+            <p style={{ width: "80px", textAlign: "center" }}>
+              {ministry.name.substring(0, 10)}
             </p>
           </Stack>
         ))}
@@ -185,9 +187,9 @@ function Landing() {
       {/* Trending News */}
       <br />
       <Stack direction="horizontal" gap={3}>
-        <h2 style={{ fontFamily: "Roboto Condensed", fontStyle: "normal" }}>
+        <h3 style={{ fontFamily: "Roboto Condensed", fontStyle: "normal" }}>
           Trending News
-        </h2>
+        </h3>
       </Stack>
       <br />
       {/* Articles */}
@@ -248,7 +250,7 @@ function Landing() {
               key={article.id}
               md={4}
               style={{
-                minHeight: " 45vh",
+                minHeight: "45vh",
                 maxHeight: "50vh",
                 marginBottom: "7%",
                 padding: "0 10px",
@@ -266,7 +268,7 @@ function Landing() {
                     boxShadow: "0px 10px 10px rgba(0,0,0,0.5)",
                     backgroundColor: theme === "light" ? "white" : "#111111",
                     color: theme === "light" ? "#111111" : "white",
-                    borderRadius: "0 0 18px 18px"
+                    borderRadius: "0 0 18px 18px",
                   }}
                 >
                   {/* Card body */}
@@ -293,7 +295,11 @@ function Landing() {
                       <b>{article.title.substring(0, 55)}</b>
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
-                      <Badge bg="danger">{article.ministry}</Badge>
+                      <Badge bg="danger">
+                        {ministries.find(
+                          (ministry) => ministry.id === article.ministry
+                        )?.name || "Unknown Ministry"}
+                      </Badge>
                     </Card.Subtitle>
                   </Card.Body>
                   <Card.Text
@@ -303,7 +309,7 @@ function Landing() {
                       fontSize: "17px",
                       margin: "5px 5px",
                       padding: "10px",
-                      height: "6vh"
+                      height: "6vh",
                     }}
                   >
                     {article.content.length > 55 ? (
@@ -324,13 +330,14 @@ function Landing() {
                     gap={2}
                     style={{
                       backgroundColor: theme === "light" ? "white" : "#111111",
-                      color: theme === "light" ? "#111111" : "white", paddingLeft: "10px"
+                      color: theme === "light" ? "#111111" : "white",
+                      paddingLeft: "10px",
                     }}
                   >
                     <Image
                       src={authors[article.author]?.photoURL}
                       alt=""
-                      style={{ width: "3vh", height: "3vh",  }}
+                      style={{ width: "3vh", height: "3vh" }}
                       roundedCircle
                     />
                     {authors[article.author]?.firstName}{" "}
@@ -343,7 +350,7 @@ function Landing() {
                       color: theme === "light" ? "#111111" : "white",
                       fontSize: "10px",
                       margin: "2px 5px",
-                      paddingLeft: "15px"
+                      paddingLeft: "15px",
                     }}
                   >
                     {" "}
@@ -357,28 +364,6 @@ function Landing() {
           ))
         )}
       </Row>
-
-      {/* Share Modal */}
-      <Modal show={showShare} onHide={handleShareClose}>
-        <Modal.Body
-          style={{
-            backgroundColor: theme === "light" ? "white" : "#111111",
-            color: theme === "light" ? "#111111" : "white",
-          }}
-        >
-          <Stack gap={4} style={{ padding: "10px 20px" }}>
-            {Ministries.map((ministry) => (
-              <Badge
-                key={ministry.id}
-                bg="success"
-                onClick={() => filterArticlesByMinistry(ministry.name)}
-              >
-                Ministry of {ministry.name}
-              </Badge>
-            ))}
-          </Stack>
-        </Modal.Body>
-      </Modal>
     </Container>
   );
 }
