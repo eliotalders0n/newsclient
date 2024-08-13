@@ -1,6 +1,7 @@
 import React from "react";
 import { Container, Image } from "react-bootstrap";
 import { useTheme } from "../template/themeContext";
+import { Height } from "@mui/icons-material";
 
 const Header = () => {
   const { theme } = useTheme();
@@ -25,8 +26,9 @@ const Header = () => {
 };
 
 const flagStyle = {
-  width: "5vh",
+  width: "7vh",
   padding: "2px",
+  height: "5vh",
   resizeMode: "contain",
 };
 
@@ -38,8 +40,10 @@ const logoStyle = {
 
 const coaStyle = {
   width: "5vh",
+  height: "5vh",
   padding: "2px",
   resizeMode: "contain",
+  backgroundColor: "White",
 };
 
 const sloganStyle = {

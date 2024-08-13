@@ -312,10 +312,10 @@ function Landing() {
                       height: "6vh",
                     }}
                   >
-                    {article.content.length > 55 ? (
+                    {article.content.length > 40 ? (
                       <div
                         dangerouslySetInnerHTML={sanitizeHTML(
-                          `${article.content.substring(0, 55)}...`
+                          `${article.content.substring(0, 40)}...`
                         )}
                       />
                     ) : (
@@ -335,9 +335,12 @@ function Landing() {
                     }}
                   >
                     <Image
-                      src={authors[article.author]?.photoURL}
+                      src={
+                        authors[article.author]?.photoURL ||
+                        "assets/profile.png"
+                      }
                       alt=""
-                      style={{ width: "3vh", height: "3vh" }}
+                      style={{ width: "2vh", height: "2vh" }}
                       roundedCircle
                     />
                     {authors[article.author]?.firstName}{" "}

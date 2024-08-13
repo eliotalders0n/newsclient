@@ -89,9 +89,10 @@ const Profile = () => {
                       imagesUrls,
                       location: user_.address,
                       email: user_.email,
-                      ministry: user_.ministry,
+                      // ministry: user_.ministry,
                       firstName: user_.firstName,
                       lastName: user_.lastName,
+                      status: "Pending",
                       createdAt:
                         firebase.firestore.FieldValue.serverTimestamp(),
                     })
@@ -247,14 +248,14 @@ const Profile = () => {
           style={{
             position: "absolute",
             top: "15px",
-            right: "30px",
+            right: "70px",
             cursor: "pointer",
             backgroundColor: "rgba(255, 255, 255, 0.1)",
             borderRadius: "60%",
             padding: "5px",
           }}
         >
-          <i className="bi bi-pencil-fill"></i>
+          <i className="bi bi-pencil-fill h4"></i>
         </label>
         <input
           id="profilePictureInput"

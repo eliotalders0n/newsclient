@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Card, Badge, Stack, Container, Button } from "react-bootstrap";
+import {
+  Card,
+  Stack,
+  Container,
+  Button,
+  Form,
+  InputGroup,
+  Modal,
+  Row,
+  Badge,
+  Col,
+} from "react-bootstrap";
+import {
+  TwitterShareButton,
+  WhatsappShareButton,
+  FacebookShareButton,
+  TelegramShareButton,
+} from "react-share";
 import { Skeleton, Typography } from "@mui/material";
 import "./reels.css";
 import { useTheme } from "../template/themeContext";
@@ -31,19 +48,13 @@ const ReelCard = () => {
 
   const { theme } = useTheme();
 
-  // Function to handle liking an article
-  const handleLike = (articleId) => {
-    // Implement logic to update likes in database or state
-  };
+  const [shareArticleId, setShareArticleId] = useState(null);
+  const [showShare, setShowShare] = useState(false);
 
-  // Function to handle disliking an article
-  const handleDislike = (articleId) => {
-    // Implement logic to update dislikes in database or state
-  };
-
-  // Function to handle commenting on an article
-  const handleComment = (articleId) => {
-    // Implement logic to open a comment modal or navigate to a comment page
+  const handleShareClose = () => setShowShare(false);
+  const handleShareShow = (id) => {
+    setShareArticleId(id);
+    setShowShare(true);
   };
 
   return (
@@ -139,6 +150,11 @@ const ReelCard = () => {
             >
               {article.title} <br />
               <Badge bg="danger">{article.ministry}</Badge>
+              <i
+                className="bi bi-share h4"
+                style={{ marginLeft: "20px" }}
+                onClick={() => handleShareShow(article.id)}
+              ></i>
             </Card.Text>
             <Card.Text
               className="reels-card-text"
@@ -168,6 +184,99 @@ const ReelCard = () => {
           </Card>
         ))
       )}
+
+      <Modal show={showShare} onHide={handleShareClose}>
+        <Modal.Body
+          style={{
+            backgroundColor: theme === "light" ? "white" : "#111111",
+            color: theme === "light" ? "#111111" : "white",
+          }}
+        >
+          {/* Share buttons */}
+          <h4 className="display-6 text-center">
+            Share this with your social Community!
+            <br />
+            <br />
+            <Row>
+              <Col>
+                <FacebookShareButton
+                  url={`https://zanis-pro.web.app/reels/${shareArticleId}`}
+                  quote="Ministry of Information and Media. To Inform, Educate and Entertain the Nation!"
+                >
+                  <i className="bi bi-facebook"></i>
+                </FacebookShareButton>
+              </Col>
+              <Col>
+                <WhatsappShareButton
+                  url={`https://zanis-pro.web.app/reels/${shareArticleId}`}
+                  title="Ministry of Information and Media. "
+                  separator="To Inform, Educate and Entertain the Nation! "
+                >
+                  <i className="bi bi-whatsapp"></i>
+                </WhatsappShareButton>
+              </Col>
+              <Col>
+                <TwitterShareButton
+                  title="Ministry of Information and Media"
+                  url={`https://zanis-pro.web.app/reels/${shareArticleId}`}
+                  via={
+                    "Ministry of Information and Media. To Inform, Educate and Entertain the Nation"
+                  }
+                >
+                  <i className="bi bi-twitter"></i>
+                </TwitterShareButton>
+              </Col>
+              <Col>
+                <TelegramShareButton
+                  url={`https://zanis-pro.web.app/reels/${shareArticleId}`}
+                  title="Ministry of Information and Media"
+                  description="Ministry of Information and Media. To Inform, Educate and Entertain the Nation"
+                >
+                  <i className="bi bi-telegram"></i>
+                </TelegramShareButton>
+              </Col>
+            </Row>
+          </h4>
+          <br />
+          <br />
+          <p className="lead">or copy link</p>
+          <InputGroup className="mb-3">
+            <Form.Control
+              placeholder={`https://zanis-pro.web.app/reels/${shareArticleId}`}
+              aria-label="Recipient's username"
+              aria-describedby="basic-addon2"
+            />
+            <Button
+              variant="outline-success"
+              id="button-addon2"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(
+                    `https://zanis-pro.web.app/reels/${shareArticleId}`
+                  )
+                  .then(() => {
+                    console.log("Text copied to clipboard");
+                  })
+                  .catch((error) => {
+                    console.error("Error copying text to clipboard:", error);
+                  });
+              }}
+            >
+              Copy
+            </Button>
+          </InputGroup>
+        </Modal.Body>
+        <Modal.Footer
+          style={{
+            backgroundColor: theme === "light" ? "white" : "#111111",
+            color: theme === "light" ? "#111111" : "white",
+          }}
+        >
+          <Button variant="dark" onClick={handleShareClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

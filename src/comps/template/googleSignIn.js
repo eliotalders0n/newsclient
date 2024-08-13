@@ -14,29 +14,47 @@ const GoogleSignInButton = () => {
       .signInWithPopup(provider)
       .then((result) => {
         const user = result.user;
+        const { displayName, photoURL, email, uid } = user;
+        const firstName = displayName.split(" ")[0]; // Assuming the first word is the first name
 
         // Check if the user exists in Firestore
         firebase
           .firestore()
           .collection("Users")
-          .doc(user.uid)
+          .doc(uid)
           .get()
           .then((doc) => {
-            if (!doc.exists) {
+            if (doc.exists) {
+              // User exists, update the user document
+              firebase
+                .firestore()
+                .collection("Users")
+                .doc(uid)
+                .update({
+                  firstName: firstName,
+                  lastName: displayName.replace(firstName, "").trim(), // Remaining part as last name
+                  photoUrl: photoURL,
+                  email: email,
+                });
+            } else {
               // User doesn't exist, create a new user document
-              firebase.firestore().collection("Users").doc(user.uid).set({
-                firstName: "",
-                lastName: "",
-                photoUrl: user.photoURL,
-                email: user.email,
-                role: "user",
-                age: "",
-                contact: "",
-                gender: "",
-                address: "",
-                status: "Approved",
-                admin: false,
-              });
+              firebase
+                .firestore()
+                .collection("Users")
+                .doc(uid)
+                .set({
+                  firstName: firstName,
+                  lastName: displayName.replace(firstName, "").trim(), // Remaining part as last name
+                  photoURL: photoURL,
+                  email: email,
+                  role: "user",
+                  age: "",
+                  contact: "",
+                  gender: "",
+                  address: "",
+                  status: "Approved",
+                  admin: false,
+                });
             }
             navigate("/home");
           })

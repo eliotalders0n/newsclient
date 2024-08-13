@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import Landing from "./comps/pages/landingPage";
 import Profile from "./comps/pages/profile";
 import ReelCard from "./comps/pages/reels";
@@ -13,16 +13,21 @@ import Chat from "./comps/pages/chat";
 
 // ----------------------------------------------------------------------
 
-export default function LoginRoutes() {
+function RoutesWrapper() {
+  const location = useLocation();
+
+  // Determine if Navigation should be displayed
+  const shouldShowNavigation = !location.pathname.startsWith("/story/");
   return (
     <>
-    <Header/>
-    <BrowserRouter>
+      {shouldShowNavigation && <Header />}
+      {/* <Header /> */}
+      {/* <BrowserRouter> */}
       <Routes>
         <Route exact path="/" element={<Landing />} />
         <Route exact path="/podcast" element={<Podcast />} />
-        <Route exact path="/podcastlist/:ministry" element={< PodcastList/>} />
-        <Route path="/ministries" element={<Ministries/>} />
+        <Route exact path="/podcastlist/:ministry" element={<PodcastList />} />
+        <Route path="/ministries" element={<Ministries />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/home" element={<Landing />} />
@@ -30,8 +35,18 @@ export default function LoginRoutes() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/story/:id" element={<Story />} />
       </Routes>
-      <Navigation />
-    </BrowserRouter>
+      {shouldShowNavigation && <Navigation />}
+      {/* </BrowserRouter> */}
     </>
   );
 }
+
+function LoginRoutes() {
+  return (
+    <BrowserRouter>
+      <RoutesWrapper />
+    </BrowserRouter>
+  );
+}
+
+export default LoginRoutes;
