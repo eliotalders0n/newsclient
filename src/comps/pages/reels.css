@@ -1,0 +1,36 @@
+.reels-container {
+    /* display: flex; */
+    background-color: black;
+    color: white;
+    height: auto;
+    /* padding: 2vh 0; */
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+  }
+  
+  .reels-card {
+    flex: 0 0 80%; /* Each card fills the screen */
+    scroll-snap-align: start;
+    min-width: 100vw; /* Ensures each card takes full width */
+    background-color: green;
+    padding-bottom: 16px;
+    margin-bottom: 10px;
+  }
+  
+  
+  .reels-card-body {
+    color: white;
+    background-size: cover;
+    border-radius: 18px;
+    padding-bottom: 10px;
+  }
+  
+  .reels-card-text {
+    background-color: black;
+    color: white;
+    font-size: 14px;
+    padding: 1px 0 2px 20px;
+    margin: 1px;
+  }
+  
