@@ -4,7 +4,10 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  CardContent,
   Button,
+  Tabs,
+  Tab,
   TextField,
   Select,
   MenuItem,
@@ -13,9 +16,9 @@ import {
   FormControl,
   Chip,
   LinearProgress,
+  InputAdornment,
   Grid,
   Card,
-  CardContent,
   Typography,
   Avatar,
   Alert,
@@ -24,7 +27,18 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useTheme } from "../template/themeContext";
-import { Check, Close, Delete, Visibility } from "@mui/icons-material";
+import {
+  Check,
+  Close,
+  Delete,
+  Search,
+  FilterList,
+  Visibility,
+  Loop,
+  DoneAll,
+  RemoveDone,
+  Reorder,
+} from "@mui/icons-material";
 import firebase from "./../../firebase";
 import useGetMinistries from "../hooks/useGetMinistries";
 import Categories from "./categories";
@@ -156,7 +170,10 @@ const FeedbackModal = ({ open, onClose, user }) => {
         }}
       >
         <Typography variant="h6">Submit New Feedback</Typography>
-        <IconButton onClick={onClose} sx={{ color: theme === "light" ? "#000" : "#fff" }}>
+        <IconButton
+          onClick={onClose}
+          sx={{ color: theme === "light" ? "#000" : "#fff" }}
+        >
           <Close />
         </IconButton>
       </DialogTitle>
@@ -190,18 +207,35 @@ const FeedbackModal = ({ open, onClose, user }) => {
               }
               error={!!formErrors.name}
               helperText={formErrors.name}
-              sx={{ 
+              sx={{
                 mb: 2,
-                '& .MuiInputBase-input': { color: theme === "light" ? "#000" : "#fff" },
-                '& .MuiInputLabel-root': { color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" },
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: theme === "light" ? "rgba(0, 0, 0, 0.23)" : "rgba(255, 255, 255, 0.23)",
+                "& .MuiInputBase-input": {
+                  color: theme === "light" ? "#000" : "#fff",
+                },
+                "& .MuiInputLabel-root": {
+                  color:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.6)"
+                      : "rgba(255, 255, 255, 0.7)",
+                },
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.23)"
+                      : "rgba(255, 255, 255, 0.23)",
                 },
               }}
             />
 
             <FormControl fullWidth sx={{ mb: 2 }} error={!!formErrors.category}>
-              <InputLabel sx={{ color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" }}>
+              <InputLabel
+                sx={{
+                  color:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.6)"
+                      : "rgba(255, 255, 255, 0.7)",
+                }}
+              >
                 Category *
               </InputLabel>
               <Select
@@ -212,7 +246,9 @@ const FeedbackModal = ({ open, onClose, user }) => {
                 label="Category *"
                 sx={{
                   color: theme === "light" ? "#000" : "#fff",
-                  '& .MuiSvgIcon-root': { color: theme === "light" ? "#000" : "#fff" },
+                  "& .MuiSvgIcon-root": {
+                    color: theme === "light" ? "#000" : "#fff",
+                  },
                 }}
               >
                 {Categories.map((cat) => (
@@ -227,7 +263,14 @@ const FeedbackModal = ({ open, onClose, user }) => {
             </FormControl>
 
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel sx={{ color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" }}>
+              <InputLabel
+                sx={{
+                  color:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.6)"
+                      : "rgba(255, 255, 255, 0.7)",
+                }}
+              >
                 Priority
               </InputLabel>
               <Select
@@ -238,7 +281,9 @@ const FeedbackModal = ({ open, onClose, user }) => {
                 label="Priority"
                 sx={{
                   color: theme === "light" ? "#000" : "#fff",
-                  '& .MuiSvgIcon-root': { color: theme === "light" ? "#000" : "#fff" },
+                  "& .MuiSvgIcon-root": {
+                    color: theme === "light" ? "#000" : "#fff",
+                  },
                 }}
               >
                 <MenuItem value="low">Low</MenuItem>
@@ -254,10 +299,17 @@ const FeedbackModal = ({ open, onClose, user }) => {
               onChange={(e) =>
                 setFormData({ ...formData, location: e.target.value })
               }
-              sx={{ 
+              sx={{
                 mb: 2,
-                '& .MuiInputBase-input': { color: theme === "light" ? "#000" : "#fff" },
-                '& .MuiInputLabel-root': { color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" },
+                "& .MuiInputBase-input": {
+                  color: theme === "light" ? "#000" : "#fff",
+                },
+                "& .MuiInputLabel-root": {
+                  color:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.6)"
+                      : "rgba(255, 255, 255, 0.7)",
+                },
               }}
             />
           </Grid>
@@ -274,14 +326,29 @@ const FeedbackModal = ({ open, onClose, user }) => {
               }
               error={!!formErrors.description}
               helperText={formErrors.description}
-              sx={{ 
+              sx={{
                 mb: 2,
-                '& .MuiInputBase-input': { color: theme === "light" ? "#000" : "#fff" },
-                '& .MuiInputLabel-root': { color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" },
+                "& .MuiInputBase-input": {
+                  color: theme === "light" ? "#000" : "#fff",
+                },
+                "& .MuiInputLabel-root": {
+                  color:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.6)"
+                      : "rgba(255, 255, 255, 0.7)",
+                },
               }}
               inputProps={{ maxLength: 500 }}
             />
-            <Typography variant="caption" sx={{ color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color:
+                  theme === "light"
+                    ? "rgba(0, 0, 0, 0.6)"
+                    : "rgba(255, 255, 255, 0.7)",
+              }}
+            >
               {formData.description.length}/500 characters
             </Typography>
 
@@ -292,10 +359,17 @@ const FeedbackModal = ({ open, onClose, user }) => {
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
               }
-              sx={{ 
+              sx={{
                 mb: 2,
-                '& .MuiInputBase-input': { color: theme === "light" ? "#000" : "#fff" },
-                '& .MuiInputLabel-root': { color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" },
+                "& .MuiInputBase-input": {
+                  color: theme === "light" ? "#000" : "#fff",
+                },
+                "& .MuiInputLabel-root": {
+                  color:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.6)"
+                      : "rgba(255, 255, 255, 0.7)",
+                },
               }}
             />
 
@@ -304,7 +378,14 @@ const FeedbackModal = ({ open, onClose, user }) => {
               sx={{ mb: 2 }}
               error={!!formErrors.assignedTo}
             >
-              <InputLabel sx={{ color: theme === "light" ? "rgba(0, 0, 0, 0.6)" : "rgba(255, 255, 255, 0.7)" }}>
+              <InputLabel
+                sx={{
+                  color:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.6)"
+                      : "rgba(255, 255, 255, 0.7)",
+                }}
+              >
                 Assign to Ministry *
               </InputLabel>
               <Select
@@ -315,7 +396,9 @@ const FeedbackModal = ({ open, onClose, user }) => {
                 label="Assign to Ministry *"
                 sx={{
                   color: theme === "light" ? "#000" : "#fff",
-                  '& .MuiSvgIcon-root': { color: theme === "light" ? "#000" : "#fff" },
+                  "& .MuiSvgIcon-root": {
+                    color: theme === "light" ? "#000" : "#fff",
+                  },
                 }}
               >
                 {ministries.map((min) => (
@@ -340,16 +423,19 @@ const FeedbackModal = ({ open, onClose, user }) => {
               }
             />
             <label htmlFor="attachment-upload">
-              <Button 
-                variant="outlined" 
-                component="span" 
+              <Button
+                variant="outlined"
+                component="span"
                 fullWidth
-                sx={{ 
+                sx={{
                   color: theme === "light" ? "#000" : "#fff",
-                  borderColor: theme === "light" ? "rgba(0, 0, 0, 0.23)" : "rgba(255, 255, 255, 0.23)",
-                  '&:hover': {
-                    borderColor: theme === "light" ? "#000" : "#fff"
-                  }
+                  borderColor:
+                    theme === "light"
+                      ? "rgba(0, 0, 0, 0.23)"
+                      : "rgba(255, 255, 255, 0.23)",
+                  "&:hover": {
+                    borderColor: theme === "light" ? "#000" : "#fff",
+                  },
                 }}
               >
                 Add Attachments (Max 5)
@@ -370,7 +456,7 @@ const FeedbackModal = ({ open, onClose, user }) => {
                     <Avatar
                       src={file.url}
                       variant="rounded"
-                      sx={{ width: 56, height: 56 }}
+                      sx={{ width: 80, height: 80 }}
                     />
                   )}
                   <Chip
@@ -383,13 +469,14 @@ const FeedbackModal = ({ open, onClose, user }) => {
                     deleteIcon={<Delete />}
                     sx={{
                       maxWidth: 120,
-                      backgroundColor: theme === "light" ? "#f5f5f5" : "#424242",
-                      '& .MuiChip-label': {
+                      backgroundColor:
+                        theme === "light" ? "#f5f5f5" : "#424242",
+                      "& .MuiChip-label": {
                         color: theme === "light" ? "#000" : "#fff",
                       },
-                      '& .MuiSvgIcon-root': {
+                      "& .MuiSvgIcon-root": {
                         color: theme === "light" ? "#000" : "#fff",
-                      }
+                      },
                     }}
                   />
                 </Box>
@@ -399,12 +486,18 @@ const FeedbackModal = ({ open, onClose, user }) => {
         </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ 
-        bgcolor: theme === "light" ? "#fff" : "#121212",
-        borderTop: `1px solid ${theme === "light" ? "rgba(0, 0, 0, 0.12)" : "rgba(255, 255, 255, 0.12)"}`
-      }}>
-        <Button 
-          onClick={onClose} 
+      <DialogActions
+        sx={{
+          bgcolor: theme === "light" ? "#fff" : "#121212",
+          borderTop: `1px solid ${
+            theme === "light"
+              ? "rgba(0, 0, 0, 0.12)"
+              : "rgba(255, 255, 255, 0.12)"
+          }`,
+        }}
+      >
+        <Button
+          onClick={onClose}
           sx={{ color: theme === "light" ? "#000" : "#fff" }}
         >
           Cancel
@@ -420,12 +513,20 @@ const FeedbackModal = ({ open, onClose, user }) => {
       </DialogActions>
     </Dialog>
   );
-}
+};
 
 // User Feedback List Component
-const UserFeedbackList = ({ user }) => {
+const UserFeedbackList = ({ user, isMobile }) => {
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    category: "",
+    priority: "",
+    ministry: "",
+  });
+  const [showFilters, setShowFilters] = useState(false);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -447,6 +548,227 @@ const UserFeedbackList = ({ user }) => {
     return () => unsubscribe();
   }, [user.email]);
 
+  const filteredFeedback = feedback.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus =
+      selectedTab === "all" ? true : item.status === selectedTab;
+
+    const matchesFilters =
+      (!filters.category || item.category === filters.category) &&
+      (!filters.priority || item.priority === filters.priority) &&
+      (!filters.ministry || item.assignedTo === filters.ministry);
+
+    return matchesSearch && matchesStatus && matchesFilters;
+  });
+
+  const handleFilterChange = (name, value) => {
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const resetFilters = () => {
+    setFilters({ category: "", priority: "", ministry: "" });
+    setShowFilters(false);
+  };
+
+  return (
+    <Box
+      sx={{
+        bgcolor: theme === "light" ? "#f8f9fa" : "#1a1a1a",
+        borderRadius: 2,
+      }}
+    >
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          gap: 2,
+        }}
+      >
+        <TextField
+          fullWidth
+          variant="filled"
+          placeholder="Search feedback..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <Search
+                sx={{
+                  color: theme === "light" ? "text.primary" : "#fff",
+                  mr: 1,
+                }}
+              />
+            ),
+            disableUnderline: true,
+            sx: {
+              borderRadius: "12px",
+              backgroundColor: theme === "light" ? "#fff" : "#333",
+              color: theme === "light" ? "text.primary" : "#fff",
+              padding: "2px 16px",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: theme === "light" ? "#f5f5f5" : "#404040",
+              },
+            },
+          }}
+          sx={{ mb: 4 }}
+        />
+
+        <FilterList onClick={() => setShowFilters(true)} />
+      </Box>
+
+      <Tabs
+        value={selectedTab}
+        onChange={(e, newValue) => setSelectedTab(newValue)}
+        variant="scrollable"
+        scrollButtons
+        allowScrollButtonsMobile
+        aria-label="scrollable auto tabs example"
+        sx={{ mt: "-30px" }}
+      >
+        <Tab
+          icon={<Reorder />}
+          value="all"
+          sx={{
+            color: theme === "light" ? "text.primary" : "#fff",
+            fontSize: "12px",
+          }}
+        />
+        <Tab
+          icon={<RemoveDone />}
+          value="open"
+          sx={{
+            color: theme === "light" ? "text.primary" : "#fff",
+            fontSize: "12px",
+          }}
+        />
+        <Tab
+          icon={<Loop />}
+          value="in-progress"
+          sx={{
+            color: theme === "light" ? "text.primary" : "#fff",
+            fontSize: "12px",
+          }}
+        />
+        <Tab
+          icon={<DoneAll />}
+          value="closed"
+          sx={{
+            color: theme === "light" ? "text.primary" : "#fff",
+            fontSize: "12px",
+          }}
+        />
+      </Tabs>
+
+      <FilterDialog
+        open={showFilters}
+        onClose={() => setShowFilters(false)}
+        filters={filters}
+        setFilters={handleFilterChange}
+        resetFilters={resetFilters}
+        isMobile={isMobile}
+      />
+
+      {loading ? (
+        <CircularProgress sx={{ display: "block", mx: "auto", my: 4 }} />
+      ) : filteredFeedback.length === 0 ? (
+        <Alert severity="info" sx={{ m: 2 }}>
+          No feedback found matching criteria
+        </Alert>
+      ) : (
+        <Box sx={{ p: isMobile ? 1 : 3 }}>
+          {filteredFeedback.map((item) => (
+            <FeedbackCard
+              key={item.id}
+              item={item}
+              theme={theme}
+              isMobile={isMobile}
+            />
+          ))}
+        </Box>
+      )}
+    </Box>
+  );
+};
+
+// New Filter Dialog Component
+const FilterDialog = ({ open, onClose, filters, setFilters, resetFilters }) => {
+  const { docs: ministries } = useGetMinistries();
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle>
+        Filter Feedback
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{ position: "absolute", right: 8, top: 8 }}
+        >
+          <Close />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ pt: 3 }}>
+        <TextField
+          select
+          fullWidth
+          label="Category"
+          value={filters.category}
+          onChange={(e) => setFilters("category", e.target.value)}
+          sx={{ mb: 2 }}
+        >
+          <MenuItem value="">All Categories</MenuItem>
+          {Categories.map((cat) => (
+            <MenuItem key={cat} value={cat}>
+              {cat}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
+          select
+          fullWidth
+          label="Priority"
+          value={filters.priority}
+          onChange={(e) => setFilters("priority", e.target.value)}
+          sx={{ mb: 2 }}
+        >
+          <MenuItem value="">All Priorities</MenuItem>
+          <MenuItem value="low">Low</MenuItem>
+          <MenuItem value="medium">Medium</MenuItem>
+          <MenuItem value="high">High</MenuItem>
+        </TextField>
+
+        <TextField
+          select
+          fullWidth
+          label="Ministry"
+          value={filters.ministry}
+          onChange={(e) => setFilters("ministry", e.target.value)}
+        >
+          <MenuItem value="">All Ministries</MenuItem>
+          {ministries.map((min) => (
+            <MenuItem key={min.id} value={min.name}>
+              {min.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={resetFilters}>Reset</Button>
+        <Button onClick={onClose} variant="contained">
+          Apply
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// Optimized Feedback Card Component for Mobile
+const FeedbackCard = ({ item, theme }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case "open":
@@ -460,100 +782,85 @@ const UserFeedbackList = ({ user }) => {
     }
   };
 
-  if (loading)
-    return <CircularProgress sx={{ display: "block", mx: "auto" }} />;
-
   return (
-    <Box sx={{ p: 3, bgcolor: theme === "dark" ? "#121212" : "#fff" }}>
-      <Typography variant="h5" gutterBottom>
-        My Feedback Submissions
-      </Typography>
+    <Card
+      sx={{
+        backgroundColor: theme === "light" ? "white" : "black",
+        borderRadius: "16px",
+        color: theme === "light" ? "#111111" : "white",
+        transition: "box-shadow 0.3s",
+        "&:hover": { boxShadow: 3 },
+        my: "20px",
+      }}
+    >
+      <CardContent
+        sx={{
+          backgroundColor: theme === "light" ? "white" : "black",
+          color: theme === "light" ? "#111111" : "white",
+        }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">{item.name}</Typography>
+          <Chip
+            label={item.status}
+            color={getStatusColor(item.status)}
+            variant="outlined"
+          />
+        </Box>
 
-      {feedback.length === 0 ? (
-        <Alert severity="info">No feedback submissions found</Alert>
-      ) : (
-        <Grid container spacing={3}>
-          {feedback.map((item) => (
-            <Grid item xs={12} key={item.id}>
-              <Card
-                sx={{
-                  backgroundColor: theme === "light" ? "white" : "black",
-                  color: theme === "light" ? "#111111" : "white",
-                  transition: "box-shadow 0.3s",
-                  "&:hover": { boxShadow: 3 },
-                }}
-              >
-                <CardContent
-                  sx={{
-                    backgroundColor: theme === "light" ? "white" : "black",
-                    color: theme === "light" ? "#111111" : "white",
-                  }}
+        <Box sx={{ width: 200, pl: 2, borderLeft: `1px solid` }}>
+          <Typography variant="caption" display="block" gutterBottom>
+            Priority: <Chip label={item.priority} size="small" />
+          </Typography>
+          <Typography variant="caption" display="block">
+            Assigned to: {item.assignedTo}
+          </Typography>
+        </Box>
+
+        <Typography variant="body2" style={{ color: "white" }} gutterBottom>
+          {item.dateReported?.toLocaleDateString()}
+        </Typography>
+
+        <Typography paragraph>{item.description}</Typography>
+
+        {item.governmentResponse && (
+          <Box
+            sx={{
+              bgcolor: theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+              p: 2,
+              borderRadius: 1,
+              mt: 2,
+            }}
+          >
+            <Typography variant="subtitle2" gutterBottom>
+              Government Response:
+            </Typography>
+            <Typography>{item.governmentResponse}</Typography>
+          </Box>
+        )}
+
+        {item.attachments?.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Attachments:
+            </Typography>
+            <Box gap={1}>
+              {item.attachments.map((file, index) => (
+                <Button
+                  key={index}
+                  variant="outlined"
+                  startIcon={<Visibility />}
+                  sx={{ mt: "5px", mx: "5px" }}
+                  onClick={() => window.open(file.url, "_blank")}
                 >
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Typography variant="h6">{item.name}</Typography>
-                    <Chip
-                      label={item.status}
-                      color={getStatusColor(item.status)}
-                      variant="outlined"
-                    />
-                  </Box>
-
-                  <Typography
-                    variant="body2"
-                    style={{ color: "white" }}
-                    gutterBottom
-                  >
-                    {item.dateReported?.toLocaleDateString()}
-                  </Typography>
-
-                  <Typography paragraph>{item.description}</Typography>
-
-                  {item.governmentResponse && (
-                    <Box
-                      sx={{
-                        bgcolor: theme === "dark" ? "#2d2d2d" : "#f5f5f5",
-                        p: 2,
-                        borderRadius: 1,
-                        mt: 2,
-                      }}
-                    >
-                      <Typography variant="subtitle2" gutterBottom>
-                        Government Response:
-                      </Typography>
-                      <Typography>{item.governmentResponse}</Typography>
-                    </Box>
-                  )}
-
-                  {item.attachments?.length > 0 && (
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="subtitle2" gutterBottom>
-                        Attachments:
-                      </Typography>
-                      <Box display="flex" gap={1}>
-                        {item.attachments.map((file, index) => (
-                          <Button
-                            key={index}
-                            variant="outlined"
-                            startIcon={<Visibility />}
-                            onClick={() => window.open(file.url, "_blank")}
-                          >
-                            View File {index + 1}
-                          </Button>
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </Box>
+                  View File {index + 1}
+                </Button>
+              ))}
+            </Box>
+          </Box>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

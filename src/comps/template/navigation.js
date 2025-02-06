@@ -48,7 +48,7 @@ const Navigation = () => {
         }}
       />
       <BottomNavigationAction
-        label="Videos"
+        label="Feedback"
         value="/reels"
         icon={<MovieCreationIcon />}
         sx={{

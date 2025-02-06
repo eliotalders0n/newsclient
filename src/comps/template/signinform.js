@@ -12,9 +12,8 @@ import {
   Box,
   Link,
 } from "@mui/material";
-import { Email as EmailIcon, Lock as LockIcon } from "@mui/icons-material";
+import { ArrowBack, ArrowCircleDown, Email as EmailIcon, Lock as LockIcon } from "@mui/icons-material";
 import firebase from "../../firebase";
-import { useTheme } from "./themeContext";
 import Intro from "./intro";
 
 export default function Login() {
@@ -42,7 +41,7 @@ export default function Login() {
       await firebase
         .auth()
         .signInWithEmailAndPassword(values.email, values.password);
-      navigate("/profile"); // Redirect to profile page after login
+      navigate("/home"); // Redirect to profile page after login
     } catch (error) {
       console.error("Error during login:", error);
     } finally {
@@ -52,10 +51,12 @@ export default function Login() {
 
   return (
     <Container
+      maxWidth={false} // This is the correct way to disable maxWidth
       sx={{
         color: "white",
         bgcolor: "#1E1E1E",
         minHeight: "100vh",
+        p: 0, // Add this to remove any default padding
       }}
     >
       {showIntro ? (
@@ -68,14 +69,14 @@ export default function Login() {
             flexDirection="column"
             alignItems="center"
             gap={1}
-            pt={10}
+            pt={4}
             pb={4}
           >
             <Box
               component="img"
               src="./assets/LOG.png"
               alt="Logo"
-              width={150}
+              width={120}
               mb={2}
             />
             <Typography variant="h5" align="center" fontWeight="bold">
@@ -184,16 +185,27 @@ export default function Login() {
               </Stack>
             </Box>
 
-            <Typography variant="body2" align="center" mt={3}>
-              New here?{" "}
-              <Link
-                href="/register"
-                underline="hover"
-                sx={{ color: "#1976d2" }}
-              >
-                Create an account
-              </Link>
-            </Typography>
+            <Box
+              sx={{
+                backgroundColor: "#f0f8ff", // A light blue background to highlight the section
+                padding: 2,
+                borderRadius: 2,
+                textAlign: "center",
+                mt: 3,
+              }}
+            >
+              <ArrowCircleDown sx={{ fontWeight: "bold", color: "black" }}/>
+              <Typography variant="body1" sx={{ fontWeight: "bold", color: "black" }}>
+                New here?{" "}
+                <Link
+                  href="/register"
+                  underline="always"
+                  sx={{ color: "#1976d2", fontWeight: "bold" }}
+                >
+                  Create an account
+                </Link>
+              </Typography>
+            </Box>
           </Card>
         </>
       )}

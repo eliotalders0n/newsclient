@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Container,
   Card,
@@ -11,6 +11,8 @@ import {
   Box,
   InputAdornment,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Email as EmailIcon,
@@ -36,6 +38,18 @@ export default function Register() {
     profilePicUrl: "",
   });
 
+  // Snackbar state for toast notifications
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "error", // "error", "success", "info", "warning"
+  });
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   const handleChange = (prop) => (e) => {
     setValues({ ...values, [prop]: e.target.value });
   };
@@ -52,8 +66,18 @@ export default function Register() {
       const downloadURL = await fileRef.getDownloadURL();
       setValues({ ...values, profilePicUrl: downloadURL });
       setProfilePic(downloadURL);
+      setSnackbar({
+        open: true,
+        message: "Profile picture uploaded successfully!",
+        severity: "success",
+      });
     } catch (error) {
       console.error("Error uploading profile picture:", error);
+      setSnackbar({
+        open: true,
+        message: "Error uploading profile picture. Please try again.",
+        severity: "error",
+      });
     } finally {
       setUploading(false);
     }
@@ -61,8 +85,18 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
+    // Check that a profile picture has been uploaded
+    if (!values.profilePicUrl) {
+      setSnackbar({
+        open: true,
+        message: "Please upload a profile picture.",
+        severity: "error",
+      });
+      return;
+    }
+
+    setLoading(true);
     try {
       // Create user with Firebase Authentication
       const { user } = await firebase
@@ -79,9 +113,34 @@ export default function Register() {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
 
-      navigate("/profile"); // Redirect to profile page after registration
+      setSnackbar({
+        open: true,
+        message: "Registration successful!",
+        severity: "success",
+      });
+      navigate("/home");
     } catch (error) {
       console.error("Error during registration:", error);
+      // Handle Firebase auth errors
+      if (error.code === "auth/email-already-in-use") {
+        setSnackbar({
+          open: true,
+          message: "The email address is already in use.",
+          severity: "error",
+        });
+      } else if (error.code === "auth/weak-password") {
+        setSnackbar({
+          open: true,
+          message: "The password is too weak.",
+          severity: "error",
+        });
+      } else {
+        setSnackbar({
+          open: true,
+          message: "Registration failed. Please try again.",
+          severity: "error",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -89,34 +148,47 @@ export default function Register() {
 
   return (
     <Container
-      maxWidth="full"
+      maxWidth="sm"
       sx={{
         paddingTop: "100px",
         minHeight: "100vh",
       }}
     >
-      <Card sx={{ p: 4, borderRadius: 2 }}>
+      <Card sx={{ p: 4, borderRadius: 2, boxShadow: 3 }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Register
+          Create Your Account
         </Typography>
 
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+        {/* Profile Picture Upload Section */}
+        <Box sx={{ textAlign: "center", mb: 3 }}>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            Upload Profile Picture *
+          </Typography>
           <input
             accept="image/*"
             style={{ display: "none" }}
             id="profile-pic-upload"
             type="file"
+            required
             onChange={handleProfilePicUpload}
             disabled={uploading}
           />
           <label htmlFor="profile-pic-upload">
             <Avatar
               src={profilePic}
-              sx={{ width: 100, height: 100, cursor: "pointer" }}
+              sx={{
+                width: 100,
+                height: 100,
+                cursor: "pointer",
+                border: "2px dashed #1976d2",
+              }}
             >
               {!profilePic && <CloudUploadIcon fontSize="large" />}
             </Avatar>
           </label>
+          <Typography variant="caption" display="block" color="textSecondary">
+            Click the image to upload
+          </Typography>
         </Box>
 
         <form onSubmit={handleSubmit}>
@@ -166,6 +238,7 @@ export default function Register() {
                   </InputAdornment>
                 ),
               }}
+              helperText="Password must be at least 6 characters."
             />
 
             <TextField
@@ -210,7 +283,26 @@ export default function Register() {
             </Button>
           </Stack>
         </form>
+
+        <Typography variant="body2" align="center" mt={3}>
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "#1976d2", textDecoration: "none" }}>
+            Login
+          </Link>
+        </Typography>
       </Card>
+
+      {/* Snackbar for Toast Messages */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

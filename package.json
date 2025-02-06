@@ -37,6 +37,7 @@
     "react-router-dom": "^6.21.3",
     "react-scripts": "5.0.1",
     "react-share": "^5.0.3",
+    "react-toastify": "^11.0.3",
     "web-vitals": "^2.1.4",
     "yet-another-react-lightbox": "^3.17.0"
   },

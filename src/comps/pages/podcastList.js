@@ -35,7 +35,8 @@ const PodcastList = () => {
         display: "flex",
         flexDirection: { xs: "column", sm: "row" }, // Stack on mobile, side by side on desktop
         minHeight: "100vh",
-        marginTop: "14vh",
+        marginTop: "10vh",
+        paddingTop: "6px",
         backgroundColor: appTheme === "light" ? "#f5f5f5" : "#121212", // Use the theme for background
         color: appTheme === "light" ? "#000" : "#fff", // Use the theme for text color
       }}

@@ -90,7 +90,6 @@ const VideoCard = ({ article, authors, ministries, theme }) => {
   );
 };
 
-// Reusable Article Card Component
 const ArticleCard = ({ article, authors, ministries, theme }) => (
   <Col md={4} sm={6} xs={12} className="mb-4">
     <Link
@@ -150,8 +149,8 @@ function Landing() {
   const [filterVideo, setFilterVideo] = useState(false);
   const { theme: appTheme } = useCustomTheme();
   const { docs: ministries } = useGetMinistries();
+  const [visibleItems, setVisibleItems] = useState(8);
 
-  // MUI Theme integration with your app's theme
   const muiTheme = createTheme({
     palette: {
       mode: appTheme === "light" ? "light" : "dark",
@@ -207,12 +206,27 @@ function Landing() {
     });
 
     setFilteredArticles(filtered);
+    setVisibleItems(8); // Reset visible items when filters change
   }, [articles, searchTerm, filterVideo]);
 
   const resetFilters = () => {
     setSearchTerm("");
     setFilterVideo(false);
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop ===
+        document.documentElement.offsetHeight
+      ) {
+        setVisibleItems((prevVisibleItems) => prevVisibleItems + 8);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <ThemeProvider theme={muiTheme}>
@@ -226,7 +240,6 @@ function Landing() {
           margin: "70px 0",
         }}
       >
-        {/* Enhanced Search Section */}
         <div className="d-flex flex-column flex-md-row gap-3 mb-4">
           <TextField
             fullWidth
@@ -270,7 +283,6 @@ function Landing() {
           </div>
         </div>
 
-        {/* Existing Ministries Filter */}
         <Stack direction="horizontal" gap={4} className="overflow-auto mb-4">
           <Button
             variant="outline-secondary"
@@ -287,35 +299,35 @@ function Landing() {
                   articles.filter((article) => article.ministry === ministry.id)
                 )
               }
+              style={{ cursor: "pointer" }}
             >
               <Stack
                 direction="column"
                 alignItems="center"
                 justifyContent="center"
-                spacing={1} // Space between Avatar and Typography
+                spacing={1}
               >
-                <Avatar src={ministry.img} sx={{ width: 56, height: 56 }} />{" "}
-                {/* Adjust size as needed */}
+                <Avatar src={ministry.img} sx={{ width: 56, height: 56 }} />
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  className="text-truncate"
+                  align="center"
+                  noWrap
                 >
-                  {ministry.name}
+                  {ministry?.abbreviation}
                 </Typography>
               </Stack>
             </div>
           ))}
         </Stack>
 
-        {/* Articles Section */}
         <Row>
           {loading ? (
             <Skeleton variant="rectangular" width="100%" height={200} />
           ) : filteredArticles.length === 0 ? (
             <p>No articles found.</p>
           ) : (
-            filteredArticles.map((article) =>
+            filteredArticles.slice(0, visibleItems).map((article) =>
               article.video ? (
                 <VideoCard
                   key={article.id}

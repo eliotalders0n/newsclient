@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Replace these with actual images
 import Image1 from "../assets/hello.gif";
@@ -42,6 +43,14 @@ const Intro = ({ onFinish }) => {
   const navigate = useNavigate();
   const theme = useTheme();
 
+  // Preload images
+  useEffect(() => {
+    steps.forEach((step) => {
+      const img = new Image();
+      img.src = step.image;
+    });
+  }, []);
+
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
       // Call the onFinish callback if provided, else navigate to login
@@ -67,111 +76,115 @@ const Intro = ({ onFinish }) => {
 
   return (
     <Container
-      maxWidth={true}
+      maxWidth={false} // Disable maxWidth constraint
       sx={{
         height: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        p: 0,
-        transition: "background 0.5s ease",
+        p: 0, // Ensure no padding
       }}
     >
-          <Card
-            sx={{
-              width: "100%",
-              height: "90vh",
-              maxWidth: "md",
-              mx: 1,
-              overflow: "hidden",
-              borderRadius: 4,
-              boxShadow: theme.shadows[10],
-            }}
-          >
-            <Box
-              sx={{
-                height: { xs: 400, sm: 500 },
+      <Card
+        sx={{
+          width: "100%",
+          height: "100vh",
+          mx: 0, // Remove horizontal margin
+          borderRadius: 0, // Remove border radius if you want
+          boxShadow: "none", // Remove shadow if desired
+          // Remove maxWidth: "md" completely
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            height: { xs: "50vh", sm: 500 },
+            width: "100%",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={activeStep}
+              src={steps[activeStep].image}
+              alt={steps[activeStep].title}
+              style={{
                 width: "100%",
-                overflow: "hidden",
+                height: "70%",
+                objectFit: "cover",
+                objectPosition: "center",
+                position: "absolute",
+                top: 0,
+                left: 0,
               }}
-            >
-              <img
-                src={steps[activeStep].image}
-                alt={steps[activeStep].title}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                }}
-              />
-            </Box>
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            />
+          </AnimatePresence>
+        </Box>
 
-            <Box sx={{ p: 4, textAlign: "center" }}>
-              <Typography
-                variant="h3"
-                gutterBottom
-                sx={{ fontWeight: 700, mb: 3 }}
-              >
-                {steps[activeStep].title}
-              </Typography>
-              <Typography variant="h6" sx={{ mb: 4, color: "text.secondary" }}>
-                {steps[activeStep].description}
-              </Typography>
+        <Box sx={{ p: 1, textAlign: "center", mt:"-50px" }}>
+          <Typography variant="h3" gutterBottom sx={{ fontWeight: 700, mb: 1 }}>
+            {steps[activeStep].title}
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 4, color: "text.secondary" }}>
+            {steps[activeStep].description}
+          </Typography>
 
-              <MobileStepper
-                variant="dots"
-                steps={steps.length}
-                position="static"
-                activeStep={activeStep}
+          <MobileStepper
+            variant="dots"
+            steps={steps.length}
+            position="static"
+            activeStep={activeStep}
+            sx={{
+              background: "transparent",
+              justifyContent: "center",
+              gap: 1,
+              "& .MuiMobileStepper-dot": {
+                width: 12,
+                height: 12,
+                backgroundColor: "rgba(0,0,0,0.2)",
+              },
+              "& .MuiMobileStepper-dotActive": {
+                backgroundColor: theme.palette.primary.main,
+              },
+            }}
+            nextButton={
+              <Button
+                size="large"
+                onClick={handleNext}
+                variant={activeStep === steps.length - 1 ? "contained" : "text"}
                 sx={{
-                  background: "transparent",
-                  justifyContent: "center",
-                  gap: 1,
-                  "& .MuiMobileStepper-dot": {
-                    width: 12,
-                    height: 12,
-                    backgroundColor: "rgba(0,0,0,0.2)",
-                  },
-                  "& .MuiMobileStepper-dotActive": {
-                    backgroundColor: theme.palette.primary.main,
-                  },
+                  borderRadius: 8,
+                  px: 2,
+                  ...(activeStep === steps.length - 1 && {
+                    bgcolor: theme.palette.primary.main,
+                    color: "white",
+                    "&:hover": { bgcolor: theme.palette.primary.dark },
+                  }),
                 }}
-                nextButton={
-                  <Button
-                    size="large"
-                    onClick={handleNext}
-                    variant={
-                      activeStep === steps.length - 1 ? "contained" : "text"
-                    }
-                    sx={{
-                      borderRadius: 8,
-                      px: 4,
-                      ...(activeStep === steps.length - 1 && {
-                        bgcolor: theme.palette.primary.main,
-                        color: "white",
-                        "&:hover": { bgcolor: theme.palette.primary.dark },
-                      }),
-                    }}
-                  >
-                    {activeStep === steps.length - 1 ? "Get Started" : "Next"}
-                    <KeyboardArrowRight fontSize="large" />
-                  </Button>
-                }
-                backButton={
-                  <Button
-                    size="large"
-                    onClick={handleBack}
-                    disabled={activeStep === 0}
-                    sx={{ color: "text.secondary" }}
-                  >
-                    <KeyboardArrowLeft fontSize="large" />
-                    Back
-                  </Button>
-                }
-              />
-            </Box>
-          </Card>
+              >
+                {activeStep === steps.length - 1 ? "Get Started" : "Next"}
+                <KeyboardArrowRight fontSize="large" />
+              </Button>
+            }
+            backButton={
+              <Button
+                size="large"
+                onClick={handleBack}
+                disabled={activeStep === 0}
+                sx={{ color: "text.secondary" }}
+              >
+                <KeyboardArrowLeft fontSize="large" />
+                Back
+              </Button>
+            }
+          />
+        </Box>
+      </Card>
     </Container>
   );
 };

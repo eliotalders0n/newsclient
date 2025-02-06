@@ -11,8 +11,14 @@ import {
   Card,
   CardContent,
   Grid,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
-import { UserFeedbackList, FeedbackModal } from "../template/FeedbackForm";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -20,7 +26,13 @@ const Profile = () => {
   const [uploading, setUploading] = useState(false);
   const [userPic, setUserPic] = useState(null);
   const [user, setUser] = useState(null);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    age: "",
+    nrc: "",
+  });
 
   useEffect(() => {
     const unsubscribeAuth = firebase
@@ -33,8 +45,15 @@ const Profile = () => {
             .doc(currentUser.uid);
           const unsubscribeSnapshot = userDocRef.onSnapshot((doc) => {
             if (doc.exists) {
-              setUser(doc.data());
-              setUserPic(doc.data()?.photoURL);
+              const userData = doc.data();
+              setUser(userData);
+              setUserPic(userData?.photoURL);
+              setFormData({
+                name: userData.name || "",
+                email: userData.email || "",
+                age: userData.age || "",
+                nrc: userData.nrc || "",
+              });
             } else {
               console.error("User document does not exist");
             }
@@ -47,6 +66,7 @@ const Profile = () => {
       });
     return () => unsubscribeAuth();
   }, []);
+
   const Logout = () => {
     firebase
       .auth()
@@ -59,9 +79,24 @@ const Profile = () => {
 
   const handleProfilePictureChange = (event) => {
     const file = event.target.files[0];
+
+    // Check if a file was selected
+    if (!file) return;
+
+    // Define the maximum allowed file size (5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+    // Check if the file exceeds the maximum allowed size
+    if (file.size > maxSize) {
+      toast.error("File is too large. Please upload a file smaller than 5MB.");
+      return;
+    }
+
     const storageRef = firebase.storage().ref();
     const fileRef = storageRef.child(`profile_pictures/${file.name}`);
     const uploadTask = fileRef.put(file);
+
+    setUploading(true);
 
     uploadTask.on(
       "state_changed",
@@ -72,17 +107,17 @@ const Profile = () => {
       },
       (error) => {
         console.error("Error uploading profile picture:", error);
+        toast.error("There was an error uploading your profile picture.");
       },
       () => {
         uploadTask.snapshot.ref.getDownloadURL().then((url) => {
-          // Update the profile picture immediately after upload
-          setUserPic(url); // Set the URL as the new profile picture
+          setUserPic(url);
           setUploading(false);
-          updateProfilePicture(url); // Optionally, update Firestore with the new picture URL
+          updateProfilePicture(url);
+          toast.success("Profile picture updated successfully!");
         });
       }
     );
-    setUploading(true);
   };
 
   const updateProfilePicture = (url) => {
@@ -104,7 +139,48 @@ const Profile = () => {
       });
   };
 
+  const handleEditClick = () => {
+    setEditMode(true);
+  };
+
+  const handleSaveClick = () => {
+    const currentUser = firebase.auth().currentUser;
+    const userId = currentUser.uid;
+
+    firebase
+      .firestore()
+      .collection("app_users")
+      .doc(userId)
+      .update(formData)
+      .then(() => {
+        console.log("Profile updated successfully");
+        setEditMode(false);
+      })
+      .catch((error) => {
+        console.error("Error updating profile:", error);
+      });
+  };
+
+  const handleCancelClick = () => {
+    setEditMode(false);
+    setFormData({
+      name: user.name || "",
+      email: user.email || "",
+      age: user.age || "",
+      nrc: user.nrc || "",
+    });
+  };
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   const { theme, toggleTheme } = useTheme();
+
   return (
     <Box
       sx={{
@@ -157,7 +233,7 @@ const Profile = () => {
                 }}
               >
                 <img
-                  src={userPic || "/default-avatar.png"} // Use the updated userPic state
+                  src={userPic || "/default-avatar.png"}
                   alt="Profile"
                   style={{
                     width: "100%",
@@ -202,24 +278,18 @@ const Profile = () => {
               <Typography variant="body2" sx={{ marginTop: 1 }}>
                 {user?.email}
               </Typography>
+              <Button
+                variant="outlined"
+                sx={{ marginTop: 2 }}
+                onClick={handleEditClick}
+              >
+                Edit Profile
+              </Button>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={12}>
-          <Button
-            variant="contained"
-            onClick={() => setFeedbackOpen(true)}
-            sx={{ mt: 2, width: "100%" }}
-          >
-            Submit Feedback
-          </Button>
-        </Grid>
 
-        <Grid item xs={12} sm={12}>
-          {user && <UserFeedbackList user={user} />}
-        </Grid>
-
-        <Grid item xs={12} sm={12}>
+        <Grid item xs={12} sm={8}>
           <Card
             sx={{
               padding: 3,
@@ -288,33 +358,74 @@ const Profile = () => {
               </a>
             </Typography>
           </Card>
-          <Stack
-            direction="row"
-            spacing={2}
-            justifyContent="center"
-            sx={{ marginTop: 2 }}
-          >
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={Logout}
-              sx={{
-                backgroundColor:
-                  theme === "light" ? "rgb(200,200,200)" : "white",
-                color: theme === "light" ? "white" : "#111111",
-              }}
-            >
-              Logout
-            </Button>
-          </Stack>
         </Grid>
       </Grid>
 
-      <FeedbackModal
-        open={feedbackOpen}
-        onClose={() => setFeedbackOpen(false)}
-        user={user && user}
-      />
+      {/* Edit Profile Dialog */}
+      <Dialog open={editMode} onClose={handleCancelClick}>
+        <DialogTitle>Edit Profile</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Name"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Age"
+            name="age"
+            value={formData.age}
+            onChange={handleInputChange}
+            sx={{ marginBottom: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="NRC"
+            name="nrc"
+            value={formData.nrc}
+            onChange={handleInputChange}
+            sx={{ marginBottom: 2 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelClick}>Cancel</Button>
+          <Button onClick={handleSaveClick} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Logout Button */}
+      <Stack
+        direction="row"
+        spacing={2}
+        justifyContent="center"
+        sx={{ marginTop: 2 }}
+      >
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={Logout}
+          sx={{
+            backgroundColor: theme === "light" ? "rgb(200,200,200)" : "white",
+            color: theme === "light" ? "white" : "#111111",
+          }}
+        >
+          Logout
+        </Button>
+      </Stack>
+      <ToastContainer />
     </Box>
   );
 };

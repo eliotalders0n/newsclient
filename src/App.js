@@ -6,6 +6,8 @@ import firebase from "./firebase";
 import LoginRoutes from "./loginroutes";
 import Routers from "./routes";
 import { ThemeProvider } from "./comps/template/themeContext";
+import Loading from "./comps/assets/Loading2.gif";
+import { Container } from "@mui/material";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,9 +27,9 @@ const App = () => {
   if (isLoading) {
     return (
       <ThemeProvider>
-        <Typography align="center" sx={{ mt: 4 }}>
-          Loading...
-        </Typography>
+        <Container style={{backgroundColor: "#f5f5f5", minHeight: "100vh"}}>
+          <img src={Loading} width={"100%"}/>
+        </Container>
       </ThemeProvider>
     );
   }
@@ -49,9 +51,7 @@ const App = () => {
           {error}
         </Typography>
       )}
-      <Router>
-        {isLoggedIn ? <LoginRoutes /> : <Routers />}
-      </Router>
+      <Router>{isLoggedIn ? <LoginRoutes /> : <Routers />}</Router>
     </ThemeProvider>
   );
 };
