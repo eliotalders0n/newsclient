@@ -12,7 +12,12 @@ import {
   Box,
   Link,
 } from "@mui/material";
-import { ArrowBack, ArrowCircleDown, Email as EmailIcon, Lock as LockIcon } from "@mui/icons-material";
+import {
+  ArrowBack,
+  ArrowCircleDown,
+  Email as EmailIcon,
+  Lock as LockIcon,
+} from "@mui/icons-material";
 import firebase from "../../firebase";
 import Intro from "./intro";
 
@@ -194,8 +199,11 @@ export default function Login() {
                 mt: 3,
               }}
             >
-              <ArrowCircleDown sx={{ fontWeight: "bold", color: "black" }}/>
-              <Typography variant="body1" sx={{ fontWeight: "bold", color: "black" }}>
+              <ArrowCircleDown sx={{ fontWeight: "bold", color: "black" }} />
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "bold", color: "black" }}
+              >
                 New here?{" "}
                 <Link
                   href="/register"
@@ -207,6 +215,21 @@ export default function Login() {
               </Typography>
             </Box>
           </Card>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ my: 2 }}
+          >
+            <Link
+              component={RouterLink}
+              variant="subtitle2"
+              to="/reset_password"
+              underline="hover"
+            >
+              Forgot password?
+            </Link>
+          </Stack>
         </>
       )}
     </Container>

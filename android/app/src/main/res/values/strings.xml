@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">eati</string>
-    <string name="title_activity_main">eati</string>
-    <string name="package_name">eati.web.app</string>
-    <string name="custom_url_scheme">eati.web.app</string>
-    <string name="server_client_id">141780524287-h5683vclg63h0e6ndma1947vuvsod3tp.apps.googleusercontent.com</string>
-</resources>

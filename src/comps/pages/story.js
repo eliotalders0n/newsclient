@@ -43,6 +43,10 @@ import firebase from "../../firebase";
 import useGetUser from "../hooks/useGetUser";
 import { useTheme as useCustomTheme } from "../template/themeContext";
 import getTimeSincePostCreation from "../template/getTimeSincePostCreation";
+import { ToastContainer, toast } from "react-toastify";
+import { Filter } from "bad-words";
+import inappropriateWords from "../utils/en.json";
+import "react-toastify/dist/ReactToastify.css";
 
 function Story() {
   const location = useLocation();
@@ -65,17 +69,25 @@ function Story() {
   const author = useGetUser(data?.author).docs;
   const commentInputRef = useRef(null);
 
+  const filter = new Filter(); // Create a new filter instance
+  const seenPatterns = new Set(); // Prevent duplicate patterns
+
   const imageData =
     data?.imagesUrls?.map((url) => ({ src: url, alt: "" })) || [];
   const createdAt = data?.createdAt
     ? getTimeSincePostCreation(data.createdAt.seconds)
     : "";
 
-    useEffect(() => {
-      const authUnsubscribe = firebase.auth().onAuthStateChanged((loggedInUser) => {
+  useEffect(() => {
+    const authUnsubscribe = firebase
+      .auth()
+      .onAuthStateChanged((loggedInUser) => {
         if (loggedInUser) {
           setIsLoggedIn(true);
-          const userDocRef = firebase.firestore().collection("app_users").doc(loggedInUser.uid);
+          const userDocRef = firebase
+            .firestore()
+            .collection("app_users")
+            .doc(loggedInUser.uid);
           const unsubscribe = userDocRef.onSnapshot((doc) => {
             setUser(doc.data());
           });
@@ -85,118 +97,210 @@ function Story() {
           setUser({});
         }
       });
-  
-      return () => authUnsubscribe();
-    }, []);
-  
-    // console.log("user: " + user);
-    useEffect(() => {
-      const loadComments = async () => {
-        try {
-          const commentsSnapshot = await firebase
-            .firestore()
-            .collection("Comments")
-            .orderBy("timestamp", "asc")
-            .where("article_id", "==", data.id)
-            .get();
-          const commentsData = commentsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          await fetchAuthorsDetails(commentsData);
-        } catch (error) {
-          console.error("Error loading comments:", error);
-        }
-      };
-  
-      const fetchAuthorsDetails = async (commentsData) => {
-        const authorsDetails = {};
-        for (const comment of commentsData) {
-          if (!authorsDetails[comment.authorId]) {
-            const userDoc = await firebase
-              .firestore()
-              .collection("Users")
-              .doc(comment.authorId)
-              .get();
-            authorsDetails[comment.authorId] = userDoc.data();
-          }
-          comment.authorDetails = authorsDetails[comment.authorId];
-        }
-        setComments(commentsData);
-      };
-  
-      loadComments();
-    }, [data.id]);
-  
-    const handleComment = async (event) => {
-      event.preventDefault();
+
+    return () => authUnsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const loadComments = async () => {
       try {
-        if (newComment.trim() !== "") {
-          await firebase.firestore().collection("Comments").add({
+        // Build optimized regex pattern
+        const regexParts = inappropriateWords.flatMap((item) =>
+          item.match
+            .split("|")
+            .map((word) => {
+              const normalized = word.trim().toLowerCase();
+
+              // Skip empty or duplicate patterns
+              if (!normalized || seenPatterns.has(normalized)) return null;
+              seenPatterns.add(normalized);
+
+              // Escape special regex characters and create pattern
+              const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+              return `${escaped}(?:\\w*|\\d*)`; // Match word variations
+            })
+            .filter(Boolean)
+        );
+
+        // Create comprehensive regex pattern if we have matches
+        if (regexParts.length > 0) {
+          const finalRegex = new RegExp(
+            `\\b(?:${regexParts.join("|")})\\b`, // Word boundary check
+            "gi" // Global + case-insensitive
+          );
+
+          // Replace filter's matching logic with optimized pattern
+          filter.regex = finalRegex;
+          filter.clean = function (text) {
+            return text.replace(finalRegex, "***");
+          };
+        }
+
+        // Optional: Maintain original word list for reference
+        filter.wordList = [...seenPatterns];
+
+        const commentsSnapshot = await firebase
+          .firestore()
+          .collection("Comments")
+          .orderBy("timestamp", "asc")
+          .where("article_id", "==", data.id)
+          .get();
+
+        const commentsData = commentsSnapshot.docs.map((doc) => {
+          const comment = doc.data();
+
+          // Check if the content has inappropriate words
+          if (filter.isProfane(comment.content)) {
+            comment.content =
+              "This content has been removed because it does not adhere to community guidelines";
+          }
+
+          return {
+            id: doc.id,
+            ...comment,
+          };
+        });
+
+        await fetchAuthorsDetails(commentsData); // Assuming this fetches author details and updates the state or UI
+      } catch (error) {
+        console.error("Error loading comments:", error);
+      }
+    };
+
+    const fetchAuthorsDetails = async (commentsData) => {
+      const authorsDetails = {};
+      for (const comment of commentsData) {
+        if (!authorsDetails[comment.authorId]) {
+          const userDoc = await firebase
+            .firestore()
+            .collection("Users")
+            .doc(comment.authorId)
+            .get();
+          authorsDetails[comment.authorId] = userDoc.data();
+        }
+        comment.authorDetails = authorsDetails[comment.authorId];
+      }
+      setComments(commentsData);
+    };
+
+    loadComments();
+  }, [data.id]);
+
+  const handleComment = async (event) => {
+    event.preventDefault();
+    // Build optimized regex pattern
+    const regexParts = inappropriateWords.flatMap((item) =>
+      item.match
+        .split("|")
+        .map((word) => {
+          const normalized = word.trim().toLowerCase();
+
+          // Skip empty or duplicate patterns
+          if (!normalized || seenPatterns.has(normalized)) return null;
+          seenPatterns.add(normalized);
+
+          // Escape special regex characters and create pattern
+          const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          return `${escaped}(?:\\w*|\\d*)`; // Match word variations
+        })
+        .filter(Boolean)
+    );
+
+    // Create comprehensive regex pattern if we have matches
+    if (regexParts.length > 0) {
+      const finalRegex = new RegExp(
+        `\\b(?:${regexParts.join("|")})\\b`, // Word boundary check
+        "gi" // Global + case-insensitive
+      );
+
+      // Replace filter's matching logic with optimized pattern
+      filter.regex = finalRegex;
+      filter.clean = function (text) {
+        return text.replace(finalRegex, "***");
+      };
+    }
+
+    // Optional: Maintain original word list for reference
+    filter.wordList = [...seenPatterns];
+
+    // Check if the new comment contains any offensive words
+    if (filter.isProfane(newComment)) {
+      // Show toast if the comment is inappropriate
+      toast.error(
+        "Your comment contains inappropriate content and cannot be added."
+      );
+      return; // Prevent comment from being added
+    }
+
+    try {
+      if (newComment.trim() !== "") {
+        await firebase.firestore().collection("Comments").add({
+          article_id: data.id,
+          authorId: firebase.auth().currentUser.uid,
+          content: newComment,
+          author: user.name,
+          authorPhoto: user.photoURL,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+
+        setNewComment("");
+
+        // Update comments state without fetching from Firestore again
+        setComments((prevComments) => [
+          ...prevComments,
+          {
+            id: Math.random().toString(36).substr(2, 9), // Generate temporary ID
             article_id: data.id,
             authorId: firebase.auth().currentUser.uid,
             content: newComment,
             author: user.name,
             authorPhoto: user.photoURL,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-          });
-          setNewComment("");
-          // Update comments state without fetching from Firestore again
-          setComments((prevComments) => [
-            ...prevComments,
-            {
-              id: Math.random().toString(36).substr(2, 9), // Generate temporary ID
-              article_id: data.id,
-              authorId: firebase.auth().currentUser.uid,
-              content: newComment,
-              author: user.name,
-              authorPhoto: user.photoURL,
-              timestamp: new Date(),
-            },
-          ]);
-        }
+            timestamp: new Date(),
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      alert("Failed to add comment. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    const checkLikeStatus = async () => {
+      try {
+        const likeSnapshot = await firebase
+          .firestore()
+          .collection("Reactions")
+          .where("article_id", "==", data.id)
+          .where("liked", "==", true)
+          .get();
+        setLikesCount(likeSnapshot.size);
+
+        const dislikeSnapshot = await firebase
+          .firestore()
+          .collection("Reactions")
+          .where("article_id", "==", data.id)
+          .where("liked", "==", false)
+          .get();
+        setDislikesCount(dislikeSnapshot.size);
+
+        // Check if the current user has already liked/disliked the article
+        const currentUserLike = likeSnapshot.docs.find(
+          (doc) => doc.data().user_id === firebase.auth().currentUser.uid
+        );
+        setLiked(!!currentUserLike);
+
+        const currentUserDislike = dislikeSnapshot.docs.find(
+          (doc) => doc.data().user_id === firebase.auth().currentUser.uid
+        );
+        setDisliked(!!currentUserDislike);
       } catch (error) {
-        console.error("Error adding comment:", error);
-        alert("Failed to add comment. Please try again.");
+        console.error("Error checking like/dislike status:", error);
       }
     };
-  
-    useEffect(() => {
-      const checkLikeStatus = async () => {
-        try {
-          const likeSnapshot = await firebase
-            .firestore()
-            .collection("Reactions")
-            .where("article_id", "==", data.id)
-            .where("liked", "==", true)
-            .get();
-          setLikesCount(likeSnapshot.size);
-  
-          const dislikeSnapshot = await firebase
-            .firestore()
-            .collection("Reactions")
-            .where("article_id", "==", data.id)
-            .where("liked", "==", false)
-            .get();
-          setDislikesCount(dislikeSnapshot.size);
-  
-          // Check if the current user has already liked/disliked the article
-          const currentUserLike = likeSnapshot.docs.find(
-            (doc) => doc.data().user_id === firebase.auth().currentUser.uid
-          );
-          setLiked(!!currentUserLike);
-  
-          const currentUserDislike = dislikeSnapshot.docs.find(
-            (doc) => doc.data().user_id === firebase.auth().currentUser.uid
-          );
-          setDisliked(!!currentUserDislike);
-        } catch (error) {
-          console.error("Error checking like/dislike status:", error);
-        }
-      };
-  
-      checkLikeStatus();
-    }, [data.id]);
+
+    checkLikeStatus();
+  }, [data.id]);
 
   // Reaction handling
   const handleLike = async () => {
@@ -535,9 +639,7 @@ function Story() {
               >
                 <Stack direction="row" spacing={2}>
                   <Avatar
-                    src={
-                      comment.authorPhoto || "/assets/profile.png"
-                    }
+                    src={comment.authorPhoto || "/assets/profile.png"}
                     sx={{ width: 40, height: 40 }}
                   />
                   <Box>
@@ -597,6 +699,7 @@ function Story() {
 
         <ShareDialog />
       </Container>
+      <ToastContainer />
     </Box>
   );
 }
