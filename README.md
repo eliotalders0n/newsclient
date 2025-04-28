@@ -1,70 +1,139 @@
-# Getting Started with Create React App
+---
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# EATI - Empowering Access to Timely Information
 
-## Available Scripts
+**Developed by [Appfusion Studio Limited](https://appfusionstudio.com)**
 
-In the project directory, you can run:
+Welcome to **EATI** — an official government-backed platform designed to modernize and digitize the way news, official documents, podcasts, and videos are delivered to the people of Zambia.  
+EATI stands for **Empowering Access to Timely Information**, and it is a key initiative to promote transparency, education, and citizen engagement through technology.
 
-### `npm start`
+Visit the live app here: [https://zanis-app.web.app](https://zanis-app.web.app)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Table of Contents
 
-### `npm test`
+- [Introduction](#introduction)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Introduction
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**EATI** aims to bring government news, public communications, official resources, and multimedia content closer to citizens, in an accessible and organized way.  
+Built as part of a broader national digitization initiative, EATI ensures that Zambians can stay informed — not just with news articles, but with podcasts, videos, downloadable resources, and direct access to request information from government bodies.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This initiative is part of Zambia’s commitment to transparency, inclusiveness, and modernization.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Features
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **Real-Time News**: Stay updated with the latest government announcements and national news.
+- **Podcasts**: Listen to official government podcasts directly within the app.
+- **Resource Library**: Access downloadable government documents, reports, and circulars.
+- **Video Content**: Watch informational videos and news clips curated by official media channels.
+- **Request for Information**: Citizens can submit official requests for public information directly through the platform.
+- **Mobile-Friendly Design**: Optimized for smartphones and tablets for easy access anywhere.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Technology Stack
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Frontend**: React.js
+- **Backend Services**: Firebase (Authentication, Firestore, Storage)
+- **Hosting**: Firebase Hosting
+- **Authentication**: Firebase Auth for secure user access
+- **Database**: Firestore Database to store news, media, and user-generated requests
+- **File Storage**: Firebase Storage for managing videos, documents, and podcast files
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Installation
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Prerequisites
 
-### Code Splitting
+- Node.js (v14 or later)
+- npm (v6 or later)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Steps to Set Up Locally
 
-### Analyzing the Bundle Size
+1. **Clone the Repository**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+   ```bash
+   git clone https://github.com/your-username/eati.git
+   ```
 
-### Making a Progressive Web App
+2. **Navigate to the Project Folder**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+   ```bash
+   cd eati
+   ```
 
-### Advanced Configuration
+3. **Install Project Dependencies**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+   ```bash
+   npm install
+   ```
 
-### Deployment
+4. **Set Up Firebase**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+   - Create a project in [Firebase Console](https://console.firebase.google.com/).
+   - Enable Firestore, Authentication, and Storage.
+   - Replace the default Firebase configuration in your project with your credentials.
 
-### `npm run build` fails to minify
+5. **Run the Project**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+   ```bash
+   npm start
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) to view the app in your browser.
+
+---
+
+## Usage
+
+- **Citizens**: 
+  - Browse news articles
+  - Listen to government podcasts
+  - Watch government media
+  - Download official documents
+  - Request access to public information
+
+- **Admins (Future versions)**:
+  - Post news, upload podcasts and videos
+  - Manage citizen information requests
+
+---
+
+## Contributing
+
+We welcome contributions that help improve EATI.
+
+### To Contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-name`).
+3. Commit your changes (`git commit -m 'Add new feature'`).
+4. Push to your fork (`git push origin feature-name`).
+5. Open a pull request describing your contribution.
+
+Please maintain a clean and consistent code style when contributing.
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+> **Built proudly by [Appfusion Studio Limited](https://appfusionstudio.com)** 🇿🇲
+
+---
