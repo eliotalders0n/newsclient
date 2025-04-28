@@ -1,5 +1,3 @@
----
-
 # EATI - Empowering Access to Timely Information
 
 **Developed by [Appfusion Studio Limited](https://appfusionstudio.com)**
