@@ -7,6 +7,7 @@ import firebase from "./firebase";
 import LoginRoutes from "./loginroutes";
 import Routers from "./routes";
 import { ThemeProvider } from "./comps/template/themeContext";
+import { PlayerProvider } from "./comps/template/PlayerContext";
 
 const App = () => {
   const [state, setstate] = useState(false);
@@ -36,6 +37,7 @@ const App = () => {
 
   return (
     <ThemeProvider>
+    <PlayerProvider>
       {error && (
         <Typography
           variant="body2"
@@ -53,6 +55,7 @@ const App = () => {
       )}
       {state && <LoginRoutes />}
       {!state && <Routers />}
+    </PlayerProvider>
       </ThemeProvider>
   );
 };

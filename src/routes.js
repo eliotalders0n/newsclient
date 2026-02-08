@@ -5,13 +5,13 @@ import Landing from "./comps/pages/landingPage";
 import ReelCard from "./comps/pages/reels";
 import Header from "./comps/template/head";
 import Navigation from "./comps/template/navigation";
-import GoogleSignInButton from "./comps/template/googleSignIn";
+import LoginPage from "./comps/template/googleSignIn";
+import Register from "./comps/pages/register";
 import Story from "./comps/pages/story";
 import Ministries from "./comps/pages/ministires";
 import Resources from "./comps/pages/resources";
 import Podcast from "./comps/pages/podcast";
 import PodcastList from "./comps/pages/podcastList";
-import Chat from "./comps/pages/chat";
 
 function RoutesWrapper() {
   const location = useLocation();
@@ -21,7 +21,7 @@ function RoutesWrapper() {
 
   return (
     <>
-      <Header />
+      {shouldShowNavigation && <Header />}
       <Routes>
         <Route exact path="/" element={<Landing />} />
         <Route path="/home" element={<Landing />} />
@@ -29,9 +29,9 @@ function RoutesWrapper() {
         <Route exact path="/podcastlist/:ministry" element={<PodcastList />} />
         <Route path="/ministries" element={<Ministries />} />
         <Route path="/reels" element={<ReelCard />} />
-        <Route path="/chat" element={<Chat />} />
         <Route path="/resources" element={<Resources />} />
-        <Route path="/profile" element={<GoogleSignInButton />} />
+        <Route path="/profile" element={<LoginPage />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/story/:id" element={<Story />} />
       </Routes>
       {shouldShowNavigation && <Navigation />}

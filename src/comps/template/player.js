@@ -1,22 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  MdPlayArrow,
-  MdPause,
-  MdSkipNext,
-  MdSkipPrevious,
-} from "react-icons/md";
-import { CgSpinner } from "react-icons/cg";
-import IconButton from "./iconButton";
 import AudioProgressBar from "./audioProgressBar.js";
-import { Container, Typography, Grid, Box } from "@mui/material";
 
 function formatDurationDisplay(duration) {
   const min = Math.floor(duration / 60);
   const sec = Math.floor(duration - min * 60);
-
-  const formatted = [min, sec].map((n) => (n < 10 ? "0" + n : n)).join(":");
-
-  return formatted;
+  return [min, sec].map((n) => (n < 10 ? "0" + n : n)).join(":");
 }
 
 export default function AudioPlayer({
@@ -40,23 +28,11 @@ export default function AudioPlayer({
 
   useEffect(() => {
     audioRef.current?.pause();
-
     const timeout = setTimeout(() => {
       audioRef.current?.play();
     }, 500);
-
-    return () => {
-      clearTimeout(timeout);
-    };
+    return () => clearTimeout(timeout);
   }, [songIndex]);
-
-  const handleNext = () => {
-    onNext();
-  };
-
-  const handlePrev = () => {
-    onPrev();
-  };
 
   const togglePlayPause = () => {
     if (isPlaying) {
@@ -77,120 +53,177 @@ export default function AudioPlayer({
           audio.buffered.start(audio.buffered.length - 1 - i) <
           audio.currentTime
         ) {
-          const bufferedLength = audio.buffered.end(
-            audio.buffered.length - 1 - i
-          );
-          setBuffered(bufferedLength);
+          setBuffered(audio.buffered.end(audio.buffered.length - 1 - i));
           break;
         }
       }
     }
   };
 
+  const controlBtn = (icon, onClick, disabled, size = "24px") => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        background: "none",
+        border: "none",
+        color: disabled ? "#555" : "#ffffff",
+        fontSize: size,
+        cursor: disabled ? "default" : "pointer",
+        padding: "6px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        opacity: disabled ? 0.4 : 1,
+      }}
+    >
+      <i className={`bi ${icon}`} />
+    </button>
+  );
+
   return (
-    <Container>
-      <Box bgcolor="black" color="slate400" p={3} position="relative">
-        {currentSong && (
-          <audio
-            ref={audioRef}
-            preload="metadata"
-            onDurationChange={(e) => setDuration(e.currentTarget.duration)}
-            onPlaying={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={handleNext}
-            onCanPlay={(e) => {
-              e.currentTarget.volume = volume;
-              setIsReady(true);
-            }}
-            onTimeUpdate={(e) => {
-              setCurrentProgress(e.currentTarget.currentTime);
-              handleBufferProgress(e);
-            }}
-            onProgress={handleBufferProgress}
-            onVolumeChange={(e) => setVolume(e.currentTarget.volume)}
-          >
-            <source type="audio/mpeg" src={currentSong.src} />
-          </audio>
-        )}
-        <AudioProgressBar
-          duration={duration}
-          currentProgress={currentProgress}
-          buffered={buffered}
-          onChange={(e, value) => {
-            if (!audioRef.current) return;
-
-            audioRef.current.currentTime = value;
-            setCurrentProgress(value);
+    <div
+      style={{
+        backgroundColor: "#1a1a1a",
+        borderRadius: "20px",
+        padding: "16px 20px",
+        boxShadow: "0 -4px 24px rgba(0,0,0,0.4)",
+      }}
+    >
+      {currentSong && (
+        <audio
+          ref={audioRef}
+          preload="metadata"
+          onDurationChange={(e) => setDuration(e.currentTarget.duration)}
+          onPlaying={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={onNext}
+          onCanPlay={(e) => {
+            e.currentTarget.volume = volume;
+            setIsReady(true);
           }}
-        />
+          onTimeUpdate={(e) => {
+            setCurrentProgress(e.currentTarget.currentTime);
+            handleBufferProgress(e);
+          }}
+          onProgress={handleBufferProgress}
+          onVolumeChange={(e) => setVolume(e.currentTarget.volume)}
+        >
+          <source type="audio/mpeg" src={currentSong.src} />
+        </audio>
+      )}
 
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
+      {/* Song info */}
+      <p
+        style={{
+          margin: "0 0 2px 0",
+          fontWeight: 700,
+          fontSize: "14px",
+          color: "#ffffff",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {currentSong?.title ?? "Select a podcast"}
+      </p>
+      <p
+        style={{
+          margin: "0 0 10px 0",
+          fontSize: "11px",
+          color: "#888",
+        }}
+      >
+        {currentSong?.createdAt
+          ? new Date(
+              currentSong.createdAt.seconds * 1000 +
+                currentSong.createdAt.nanoseconds / 1000000
+            ).toLocaleDateString()
+          : ""}
+      </p>
+
+      {/* Progress bar */}
+      <AudioProgressBar
+        duration={duration}
+        currentProgress={currentProgress}
+        buffered={buffered}
+        onChange={(e, value) => {
+          if (!audioRef.current) return;
+          audioRef.current.currentTime = value;
+          setCurrentProgress(value);
+        }}
+      />
+
+      {/* Time + Controls */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: "8px",
+        }}
+      >
+        <span style={{ fontSize: "11px", color: "#888" }}>
+          {elapsedDisplay}
+        </span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
         >
-          <Box textAlign="center" mb={1}>
-            <Typography variant="h6">
-              {currentSong?.title ?? "Select a podcast"}
-            </Typography>
-            <Typography variant="body2">{new Date(
-                currentSong?.createdAt.seconds * 1000 +
-                currentSong?.createdAt.nanoseconds / 1000000
-              ).toLocaleDateString() ?? "Date"}</Typography>
-          </Box>
-        </Box>
-        <Grid
-          container
-          justifyContent="center"
-          // justifyContent="space-between"
-          alignItems="center"
-         
-        >
-          <Typography variant="caption">
-            {elapsedDisplay} / {durationDisplay}
-          </Typography>
-          <br/><br/>
-          <Grid item container justifyContent="center" spacing={4}>
-            <Grid item>
-              <IconButton
-                onClick={handlePrev}
-                disabled={songIndex === 0}
-                aria-label="go to previous"
-                intent="secondary"
-              >
-                <MdSkipPrevious size={24} />
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <IconButton
-                disabled={!isReady}
-                onClick={togglePlayPause}
-                aria-label={isPlaying ? "Pause" : "Play"}
-                size="lg"
-              >
-                {!isReady && currentSong ? (
-                  <CgSpinner size={24} className="animate-spin" />
-                ) : isPlaying ? (
-                  <MdPause size={30} />
-                ) : (
-                  <MdPlayArrow size={30} />
-                )}
-              </IconButton>
-            </Grid>
-            <Grid item>
-              <IconButton
-                onClick={handleNext}
-                disabled={songIndex === songCount - 1}
-                aria-label="go to next"
-                intent="secondary"
-              >
-                <MdSkipNext size={24} />
-              </IconButton>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Box>
-    </Container>
+          {controlBtn(
+            "bi-skip-backward-fill",
+            onPrev,
+            songIndex === 0
+          )}
+          <button
+            disabled={!isReady && !!currentSong}
+            onClick={togglePlayPause}
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "50%",
+              border: "none",
+              backgroundColor: "#2563eb",
+              color: "#ffffff",
+              fontSize: "20px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <i
+              className={`bi ${
+                !isReady && currentSong
+                  ? "bi-arrow-repeat"
+                  : isPlaying
+                    ? "bi-pause-fill"
+                    : "bi-play-fill"
+              }`}
+              style={
+                !isReady && currentSong
+                  ? { animation: "spin 1s linear infinite" }
+                  : {}
+              }
+            />
+          </button>
+          {controlBtn(
+            "bi-skip-forward-fill",
+            onNext,
+            songIndex === songCount - 1
+          )}
+        </div>
+        <span style={{ fontSize: "11px", color: "#888" }}>
+          {durationDisplay}
+        </span>
+      </div>
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
   );
 }

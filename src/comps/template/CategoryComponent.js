@@ -1,107 +1,106 @@
-import React, { useState } from "react";
-import { Grid, Button, Stack, Container, Typography, Box } from "@mui/material";
+import React from "react";
 import { useTheme } from "../template/themeContext";
 import { Link } from "react-router-dom";
 import useGetMinistries from "../hooks/useGetMinistries";
-import { Image } from "react-bootstrap";
+
 
 const CategoryComponent = () => {
-  const Documents = useGetMinistries().docs;
-
+  const { docs: ministries } = useGetMinistries();
   const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  const cardBg = isDark ? "#1a1a1a" : "#f5f5f5";
+  const fg = isDark ? "#ffffff" : "#111111";
+  const secondaryText = isDark ? "#999999" : "#666666";
 
   return (
-    <Container
-      fluid
-      className="reels-container"
-      style={{
-        backgroundColor: theme === "light" ? "white" : "#111111",
-        color: theme === "light" ? "#111111" : "white",
-        minHeight: "100vh",
-      }}
-    >
-      <h2
+    <div>
+      <h5
         style={{
-          fontFamily: "Roboto Condensed",
-          fontStyle: "normal",
-          textAlign: "center",
+          fontWeight: 700,
+          color: "#f76f25",
+          marginBottom: "20px",
+          fontSize: "16px",
         }}
       >
-        Podcasts
-      </h2>
+        Browse by Ministry
+      </h5>
 
-      <Stack>
-        {Documents.map((resource) => (
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {ministries.map((ministry) => (
           <Link
-            to={"/podcastList/" + resource.id}
-            state={{ data: resource }}
-            style={{ color: "inherit", textDecoration: "none" }}
+            key={ministry.id}
+            to={"/podcastList/" + ministry.id}
+            state={{ data: ministry }}
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            <Box sx={{ flexGrow: 1 }}>
-              <Grid
-                container
-                spacing={1}
-                key={resource.id}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "14px",
+                padding: "14px",
+                borderRadius: "14px",
+                backgroundColor: cardBg,
+                transition: "all 0.2s ease",
+              }}
+            >
+              <div
                 style={{
-                  backgroundColor: theme === "light" ? "white" : "#111111",
-                  color: theme === "light" ? "#111111" : "white",
-                  boxShadow: "0px 10px 10px rgba(0,0,0,0.9)",
-                  width: "100%",
-                  marginBottom: "2vh",
-                  padding: "15px",
+                  width: "48px",
+                  height: "48px",
+                  borderRadius: "50%",
+                  backgroundColor: isDark
+                    ? "rgba(247,111,37,0.15)"
+                    : "rgba(247,111,37,0.1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
                 }}
               >
-                <Grid item xs={2}>
-                  {/* <img style={{ width: "100%" }} src={resource.img} /> */}
-                  <Image
-                    src={resource.img}
-                    alt=""
-                    style={{ width: "100%" }}
-                    roundedCircle
-                  />
-                </Grid>
-                <Grid
-                  item
-                  xs={7}
+                <i
+                  className="bi bi-headphones"
+                  style={{ fontSize: "20px", color: "#f76f25" }}
+                />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p
                   style={{
-                    backgroundColor: theme === "light" ? "white" : "#111111",
-                    color: theme === "light" ? "#111111" : "white",
+                    margin: 0,
+                    fontWeight: 600,
+                    fontSize: "15px",
+                    color: fg,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
                   }}
                 >
-                  <Typography
-                    style={{
-                      fontFamily: "Roboto Condensed",
-                      fontStyle: "normal",
-                      textAlign: "left",
-                      backgroundColor: theme === "light" ? "white" : "#111111",
-                      color: theme === "light" ? "#111111" : "white",
-                    }}
-                  >
-                    {resource.name}
-                  </Typography>
-                </Grid>
-                <Grid
-                  item
-                  xs={3}
+                  {ministry.name}
+                </p>
+                <p
                   style={{
-                    backgroundColor: theme === "light" ? "white" : "#111111",
-                    color: theme === "light" ? "#111111" : "white",
+                    margin: "2px 0 0 0",
+                    fontSize: "12px",
+                    color: secondaryText,
                   }}
                 >
-                  <Button
-                    variant="contained"
-                    //   onClick={() => handlePreview(resource.id, resource.file)}s
-                    style={{ backgroundColor: "#2ba84a", color: "white" }}
-                  >
-                    View
-                  </Button>
-                </Grid>
-              </Grid>
-            </Box>
+                  Podcasts
+                </p>
+              </div>
+              <i
+                className="bi bi-chevron-right"
+                style={{
+                  fontSize: "16px",
+                  color: secondaryText,
+                  flexShrink: 0,
+                }}
+              />
+            </div>
           </Link>
         ))}
-      </Stack>
-    </Container>
+      </div>
+    </div>
   );
 };
 

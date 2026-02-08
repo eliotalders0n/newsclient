@@ -1,34 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { Card, Stack, Image, Container, Form, Modal } from "react-bootstrap";
 import firebase from "./../../firebase";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../template/themeContext";
-import { Button, LinearProgress } from "@mui/material";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [content, setContent] = useState("");
-  const [location, setLocation] = useState("");
-  const [images, setImages] = useState([]);
+  const { theme, toggleTheme } = useTheme();
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [userpic, setUserPic] = useState(null);
+  const [userData, setUserData] = useState({});
+  const [expandedSection, setExpandedSection] = useState(null);
 
-  const [user_, setdocs] = useState([]);
+  const isDark = theme === "dark";
+  const bg = isDark ? "#111111" : "#ffffff";
+  const fg = isDark ? "#ffffff" : "#111111";
+  const secondaryText = isDark ? "#999999" : "#666666";
+  const cardBg = isDark ? "#1a1a1a" : "#f5f5f5";
+
   useEffect(() => {
-    firebase
+    const unsub = firebase
       .firestore()
       .collection("Users")
       .doc(firebase.auth().currentUser.uid)
       .onSnapshot((doc) => {
-        console.log(doc.data());
-        setdocs(doc.data());
+        setUserData(doc.data() || {});
       });
+    return () => unsub();
   }, []);
 
-  const Logout = () => {
+  const handleLogout = () => {
     firebase
       .auth()
       .signOut()
@@ -38,350 +39,548 @@ const Profile = () => {
       });
   };
 
-  const handleFileChange = (event) => {
-    const files = event.target.files;
-    const filesArray = Array.from(files);
-    setImages(filesArray);
-  };
-
-  const handleAddFeedback = async (event) => {
-    event.preventDefault(); // Prevent default form submission behavior
-
-    try {
-      setSubmitting(true);
-      const storageRef = firebase.storage().ref();
-      const articleImagesRef = storageRef.child(`article_images`);
-
-      const promises = [];
-      const imagesUrls = [];
-
-      for (const image of images) {
-        const uploadTask = articleImagesRef.child(image.name).put(image);
-
-        // Pushing the upload task promise to the promises array
-        promises.push(uploadTask);
-
-        // Listening for the completion of each upload task
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress(progress);
-          },
-          (error) => {
-            console.error("Error uploading image:", error);
-            alert("Failed to upload image. Please try again.");
-          },
-          () => {
-            // Upload completed successfully, get download URL
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-              imagesUrls.push(downloadURL);
-
-              // If all images are uploaded, proceed to add article data to Firestore
-              if (imagesUrls.length === images.length) {
-                Promise.all(promises).then(() => {
-                  firebase
-                    .firestore()
-                    .collection("Feedback")
-                    .add({
-                      content,
-                      imagesUrls,
-                      location: user_.address,
-                      email: user_.email,
-                      // ministry: user_.ministry,
-                      firstName: user_.firstName,
-                      lastName: user_.lastName,
-                      status: "Pending",
-                      createdAt:
-                        firebase.firestore.FieldValue.serverTimestamp(),
-                    })
-                    .then(() => {
-                      // Reset form fields after successful submission
-                      setLocation("");
-                      setContent("");
-                      setImages([]);
-                      setUploadProgress(0);
-                      setShowModal(true);
-                      setSubmitting(false);
-                      // Redirect to another page or perform any other action
-                    })
-                    .catch((error) => {
-                      console.error("Error adding article:", error);
-                      alert("Failed to add article. Please try again.");
-                    });
-                });
-              }
-            });
-          }
-        );
-      }
-    } catch (error) {
-      console.error("Error adding article:", error);
-      alert("Failed to add article. Please try again.");
-      setSubmitting(false);
-    }
-  };
-
   const handleProfilePictureChange = (event) => {
     const file = event.target.files[0];
+    if (!file) return;
     const storageRef = firebase.storage().ref();
     const fileRef = storageRef.child(`profile_pictures/${file.name}`);
-
     const uploadTask = fileRef.put(file);
 
+    setUploading(true);
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        // Calculate upload progress
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
+        setUploadProgress(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
       },
       (error) => {
         console.error("Error uploading profile picture:", error);
-        // Handle error
+        setUploading(false);
       },
       () => {
-        // Upload completed successfully, get download URL
         uploadTask.snapshot.ref.getDownloadURL().then((url) => {
-          setUserPic(url); // Set the URL of the uploaded image
+          setUserPic(url);
           setUploading(false);
         });
       }
     );
-    setUploading(true);
   };
 
   const updateProfilePicture = () => {
-    const currentUser = firebase.auth().currentUser;
-    const userId = currentUser.uid;
-
+    if (!userpic) return;
     firebase
       .firestore()
       .collection("Users")
-      .doc(userId)
-      .update({
-        photoURL: userpic, // Save the URL of the uploaded image in the "photoURL" field of the user document
-      })
-      .then(() => {
-        console.log("Profile picture updated successfully");
-        // Optionally, you can reload the page or update the user's profile picture state
-      })
-      .catch((error) => {
-        console.error("Error updating profile picture:", error);
-        // Handle error
-      });
+      .doc(firebase.auth().currentUser.uid)
+      .update({ photoURL: userpic })
+      .then(() => setUserPic(null))
+      .catch((error) =>
+        console.error("Error updating profile picture:", error)
+      );
   };
 
   const removeProfilePicture = () => {
-    const currentUser = firebase.auth().currentUser;
-    const userId = currentUser.uid;
-
     firebase
       .firestore()
       .collection("Users")
-      .doc(userId)
-      .update({
-        photoURL: firebase.firestore.FieldValue.delete(), // Remove the "photoURL" field from the user document
-      })
-      .then(() => {
-        console.log("Profile picture removed successfully");
-        setUserPic(""); // Clear the URL of the profile picture from the state
-      })
-      .catch((error) => {
-        console.error("Error removing profile picture:", error);
-        // Handle error
-      });
+      .doc(firebase.auth().currentUser.uid)
+      .update({ photoURL: firebase.firestore.FieldValue.delete() })
+      .then(() => setUserPic(""))
+      .catch((error) =>
+        console.error("Error removing profile picture:", error)
+      );
   };
 
-  const { theme, toggleTheme } = useTheme();
+  const toggleSection = (section) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const avatarSrc = userpic || userData.photoURL;
 
   return (
-    <Container
-      fluid
+    <div
       style={{
-        backgroundColor: theme === "light" ? "white" : "#111111",
-        color: theme === "light" ? "#111111" : "white",
+        backgroundColor: bg,
+        color: fg,
         minHeight: "100vh",
-        padding: "12vh 2vh 12vh 2vh",
-        marginTop: "8vh",
+        paddingTop: "80px",
+        paddingBottom: "80px",
+        paddingLeft: "16px",
+        paddingRight: "16px",
       }}
     >
-      <Stack direction="horizontal" gap={3}>
-        <h2>Profile</h2>
-        <Button
-          variant="contained"
-          onClick={toggleTheme}
-          className="p-2 ms-auto"
-          size="small"
-          style={{
-            backgroundColor: theme === "light" ? "#111111" : "white",
-            color: theme === "light" ? "white" : "#111111",
-          }}
-        >
-          {theme === "light" ? "Dark Mode" : "Light Mode"}
-        </Button>
-      </Stack>
-
-      <Stack
+      {/* Header row */}
+      <div
         style={{
-          position: "relative",
-          width: "30vh",
-          height: "30vh",
-          borderRadius: "50%",
-          overflow: "hidden",
-          margin: "0 auto",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "24px",
         }}
       >
-        <Image
-          src={user_ && user_.photoURL}
+        <h5
+          style={{
+            fontWeight: 700,
+            color: "#f76f25",
+            fontSize: "16px",
+            margin: 0,
+          }}
+        >
+          Profile
+        </h5>
+        <button
+          onClick={toggleTheme}
+          style={{
+            padding: "8px 14px",
+            borderRadius: "20px",
+            border: "none",
+            backgroundColor: cardBg,
+            color: fg,
+            fontSize: "13px",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <i className={`bi ${isDark ? "bi-sun" : "bi-moon"}`} />
+          {isDark ? "Light" : "Dark"}
+        </button>
+      </div>
+
+      {/* Avatar */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginBottom: "24px",
+        }}
+      >
+        <div style={{ position: "relative", marginBottom: "12px" }}>
+          {avatarSrc ? (
+            <img
+              src={avatarSrc}
+              alt=""
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: `3px solid ${cardBg}`,
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "100px",
+                height: "100px",
+                borderRadius: "50%",
+                backgroundColor: cardBg,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <i
+                className="bi bi-person-fill"
+                style={{ fontSize: "40px", color: secondaryText }}
+              />
+            </div>
+          )}
+
+          {/* Edit badge */}
+          <label
+            htmlFor="profilePictureInput"
+            style={{
+              position: "absolute",
+              bottom: "0",
+              right: "0",
+              width: "32px",
+              height: "32px",
+              borderRadius: "50%",
+              backgroundColor: "#f76f25",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            <i className="bi bi-pencil-fill" />
+          </label>
+          <input
+            id="profilePictureInput"
+            type="file"
+            onChange={handleProfilePictureChange}
+            accept="image/*"
+            style={{ display: "none" }}
+          />
+        </div>
+
+        {/* Upload progress */}
+        {uploading && (
+          <div
+            style={{
+              width: "120px",
+              height: "4px",
+              borderRadius: "2px",
+              backgroundColor: cardBg,
+              overflow: "hidden",
+              marginBottom: "8px",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${uploadProgress}%`,
+                backgroundColor: "#f76f25",
+                borderRadius: "2px",
+                transition: "width 0.3s ease",
+              }}
+            />
+          </div>
+        )}
+
+        {/* Picture actions (only show when new pic selected) */}
+        {userpic && (
+          <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+            <button
+              onClick={updateProfilePicture}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "20px",
+                border: "none",
+                backgroundColor: "#f76f25",
+                color: "#fff",
+                fontSize: "12px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setUserPic(null)}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "20px",
+                border: "none",
+                backgroundColor: cardBg,
+                color: fg,
+                fontSize: "12px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* Remove picture */}
+        {userData.photoURL && !userpic && (
+          <button
+            onClick={removeProfilePicture}
+            style={{
+              background: "none",
+              border: "none",
+              color: secondaryText,
+              fontSize: "12px",
+              cursor: "pointer",
+              marginBottom: "4px",
+            }}
+          >
+            Remove photo
+          </button>
+        )}
+
+        {/* Name & email */}
+        <p
+          style={{
+            fontWeight: 700,
+            fontSize: "18px",
+            margin: "0 0 2px 0",
+            textAlign: "center",
+          }}
+        >
+          {userData.firstName} {userData.lastName}
+        </p>
+        <p
+          style={{
+            fontSize: "13px",
+            color: secondaryText,
+            margin: 0,
+            textAlign: "center",
+          }}
+        >
+          {userData.email}
+        </p>
+      </div>
+
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        style={{
+          width: "100%",
+          padding: "14px",
+          borderRadius: "14px",
+          border: "none",
+          backgroundColor: cardBg,
+          color: fg,
+          fontSize: "15px",
+          fontWeight: 600,
+          cursor: "pointer",
+          marginBottom: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "8px",
+        }}
+      >
+        <i className="bi bi-box-arrow-right" />
+        Sign Out
+      </button>
+
+      {/* About */}
+      <h5
+        style={{
+          fontWeight: 700,
+          color: "#f76f25",
+          marginBottom: "14px",
+          fontSize: "16px",
+        }}
+      >
+        About
+      </h5>
+      <div
+        style={{
+          backgroundColor: cardBg,
+          borderRadius: "14px",
+          padding: "16px",
+          marginBottom: "24px",
+          fontSize: "14px",
+          lineHeight: "1.6",
+        }}
+      >
+        <p style={{ margin: "0 0 8px 0" }}>
+          <strong>Address:</strong> New Government Complex, 5th &amp; 6th Floors
+        </p>
+        <p style={{ margin: "0 0 8px 0" }}>
+          <strong>P.O. Box:</strong> 51025, Lusaka, Zambia.
+        </p>
+        <p style={{ margin: "0 0 8px 0" }}>
+          <strong>Contact:</strong> +260 211 237150 | +260 211 220749
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>Email:</strong> eatiapp.mim@gmail.com
+        </p>
+      </div>
+
+      {/* Useful Links */}
+      <h5
+        style={{
+          fontWeight: 700,
+          color: "#f76f25",
+          marginBottom: "14px",
+          fontSize: "16px",
+        }}
+      >
+        Useful Links
+      </h5>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "2px",
+          marginBottom: "24px",
+        }}
+      >
+        {[
+          {
+            icon: "bi-globe",
+            label: "Ministry of Information and Media",
+            url: "https://www.mim.gov.zm/",
+          },
+          {
+            icon: "bi-headset",
+            label: "Citizen Support Portal",
+            url: "https://portal.citizensupport.gov.zm/",
+          },
+        ].map((link) => (
+          <a
+            key={link.label}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "14px 16px",
+              borderRadius: "14px",
+              backgroundColor: cardBg,
+              textDecoration: "none",
+              color: fg,
+              fontSize: "14px",
+              fontWeight: 500,
+            }}
+          >
+            <i
+              className={`bi ${link.icon}`}
+              style={{ fontSize: "18px", color: "#f76f25" }}
+            />
+            <span style={{ flex: 1 }}>{link.label}</span>
+            <i
+              className="bi bi-box-arrow-up-right"
+              style={{ fontSize: "14px", color: secondaryText }}
+            />
+          </a>
+        ))}
+      </div>
+
+      {/* Terms of Use */}
+      <div style={{ marginBottom: "2px" }}>
+        <button
+          onClick={() => toggleSection("terms")}
           style={{
             width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            borderRadius: "50%",
-          }}
-        />
-        <label
-          htmlFor="profilePictureInput"
-          style={{
-            position: "absolute",
-            top: "15px",
-            right: "70px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "14px 16px",
+            borderRadius: expandedSection === "terms" ? "14px 14px 0 0" : "14px",
+            border: "none",
+            backgroundColor: cardBg,
+            color: fg,
+            fontSize: "14px",
+            fontWeight: 600,
             cursor: "pointer",
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            borderRadius: "60%",
-            padding: "5px",
           }}
         >
-          <i className="bi bi-pencil-fill h4"></i>
-        </label>
-        <input
-          id="profilePictureInput"
-          type="file"
-          onChange={handleProfilePictureChange}
-          accept="image/*"
-          style={{ display: "none" }}
-        />
+          <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <i className="bi bi-file-text" style={{ fontSize: "18px", color: "#f76f25" }} />
+            Terms of Use
+          </span>
+          <i
+            className={`bi ${expandedSection === "terms" ? "bi-chevron-up" : "bi-chevron-down"}`}
+            style={{ fontSize: "14px", color: secondaryText }}
+          />
+        </button>
+        {expandedSection === "terms" && (
+          <div
+            style={{
+              backgroundColor: cardBg,
+              borderRadius: "0 0 14px 14px",
+              padding: "0 16px 16px 16px",
+              fontSize: "13px",
+              lineHeight: "1.7",
+              color: secondaryText,
+            }}
+          >
+            <p><strong style={{ color: fg }}>Welcome to EATI</strong><br />
+            EATI is a news application owned and operated by AppFusion Studio Limited, designed to provide accurate and timely news sourced from the Ministry of Information and Media as well as independent reporters.</p>
 
-        <Button
-          size="sm"
-          fullWidth
-          variant="contained"
-          onClick={updateProfilePicture}
+            <p><strong style={{ color: fg }}>Use of Content</strong><br />
+            All content provided on EATI, including articles, images, and other materials, is intended for informational purposes only. Users are prohibited from reproducing, redistributing, or modifying any content without prior written consent from AppFusion Studio Limited.</p>
+
+            <p><strong style={{ color: fg }}>User Responsibilities</strong><br />
+            By using EATI, you agree to: use the app in compliance with all applicable laws in Zambia and any other relevant jurisdiction; not post, share, or distribute harmful content that violates the rights of others or is deemed offensive; respect the intellectual property rights of all contributors; and refrain from attempting to reverse-engineer, decompile, or otherwise alter the app's functionality.</p>
+
+            <p><strong style={{ color: fg }}>Privacy and Data Collection</strong><br />
+            We value your privacy. EATI collects and processes personal data in accordance with our privacy policy, which complies with the Google Play Store's user data policies. By using the app, you consent to the collection and processing of your data as described in our Privacy Policy. You have the right to access, correct, and delete your personal data.</p>
+
+            <p><strong style={{ color: fg }}>Third-Party Services and Ads</strong><br />
+            EATI may include third-party services or advertisements that could collect personal information. By using the app, you acknowledge and agree to the use of third-party services in accordance with their respective privacy policies.</p>
+
+            <p><strong style={{ color: fg }}>Termination of Access</strong><br />
+            AppFusion Studio Limited reserves the right to terminate or suspend your access to EATI at any time, without prior notice, for any conduct that violates these Terms of Use.</p>
+
+            <p><strong style={{ color: fg }}>Limitation of Liability</strong><br />
+            To the fullest extent permitted by law, AppFusion Studio Limited is not liable for any indirect, incidental, or consequential damages arising out of the use or inability to use EATI.</p>
+
+            <p style={{ margin: 0 }}><strong style={{ color: fg }}>Changes to Terms of Use</strong><br />
+            AppFusion Studio Limited reserves the right to modify or update these Terms of Use at any time. Continued use of the app constitutes acceptance of the updated terms.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Privacy Policy */}
+      <div style={{ marginBottom: "24px" }}>
+        <button
+          onClick={() => toggleSection("privacy")}
           style={{
-            fontSize: "10px",
-            position: "absolute",
-            bottom: "35px",
-            backgroundColor: "rgba(0,0,0,0.8)",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "14px 16px",
+            borderRadius: expandedSection === "privacy" ? "14px 14px 0 0" : "14px",
+            border: "none",
+            backgroundColor: cardBg,
+            color: fg,
+            fontSize: "14px",
+            fontWeight: 600,
+            cursor: "pointer",
           }}
         >
-          Update Picture
-        </Button>
-        <Button
-          size="sm"
-          fullWidth
-          variant="contained"
-          onClick={removeProfilePicture}
-          style={{
-            fontSize: "10px",
-            position: "absolute",
-            bottom: "5px",
-            backgroundColor: "rgba(0,0,0,0.8)",
-          }}
-        >
-          Remove Picture
-        </Button>
-      </Stack>
-      {uploading && (
-        <LinearProgress variant="determinate" value={uploadProgress} />
-      )}
-      <p className="text-center">
-        {user_ && user_.firstName} {user_ && user_.lastName} <br />{" "}
-        {user_ && user_.email}
+          <span style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <i className="bi bi-shield-check" style={{ fontSize: "18px", color: "#f76f25" }} />
+            Privacy Policy
+          </span>
+          <i
+            className={`bi ${expandedSection === "privacy" ? "bi-chevron-up" : "bi-chevron-down"}`}
+            style={{ fontSize: "14px", color: secondaryText }}
+          />
+        </button>
+        {expandedSection === "privacy" && (
+          <div
+            style={{
+              backgroundColor: cardBg,
+              borderRadius: "0 0 14px 14px",
+              padding: "0 16px 16px 16px",
+              fontSize: "13px",
+              lineHeight: "1.7",
+              color: secondaryText,
+            }}
+          >
+            <p><strong style={{ color: fg }}>Introduction</strong><br />
+            At AppFusion Studio Limited, we value your privacy. This privacy policy outlines how we collect, use, and protect your personal information while using EATI.</p>
+
+            <p><strong style={{ color: fg }}>Information Collection</strong><br />
+            We may collect personal details, such as name, email address, and usage data to improve user experience. Any data collected is done so with user consent.</p>
+
+            <p><strong style={{ color: fg }}>Use of Information</strong><br />
+            The information we collect is used to: provide and improve EATI's services; communicate with users about updates and features; and ensure compliance with legal obligations.</p>
+
+            <p><strong style={{ color: fg }}>Google Play Store Policy Compliance</strong><br />
+            We do not collect any personally identifiable information without user consent. Any data collected is stored securely. We ask for permissions only when necessary. If the app includes ads or third-party services, we comply with Google's ad policies. We retain personal data only for as long as necessary.</p>
+
+            <p><strong style={{ color: fg }}>User Rights and Control</strong><br />
+            Users have the right to access, correct, and delete their personal information. If you wish to revoke any permissions or request that your data be deleted, you can do so through the app settings or by contacting us directly.</p>
+
+            <p style={{ margin: 0 }}><strong style={{ color: fg }}>Changes to This Privacy Policy</strong><br />
+            We may update this privacy policy from time to time. We will notify users of any material changes through the app.</p>
+          </div>
+        )}
+      </div>
+
+      {/* App info */}
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "11px",
+          color: secondaryText,
+          margin: 0,
+        }}
+      >
+        EATI v1.0 &middot; AppFusion Studio Limited
       </p>
-
-      <Stack>
-        <Button
-          variant="contained"
-          size="small"
-          style={{
-            width: "40%",
-            marginLeft: "30%",
-            backgroundColor: theme === "light" ? "#111111" : "white",
-            color: theme === "light" ? "white" : "#111111",
-          }}
-          onClick={() => Logout()}
-        >
-          Logout
-        </Button>
-        <br />
-        <Form onSubmit={handleAddFeedback}>
-          <h2>Feedback</h2>
-          <p className="lead">
-            Spotted an issue in your community or neighbourhood that needs to be
-            addressed or fixed? Report it here! Please also flag any content
-            that doesn't adhere to our community guidelines.
-          </p>
-          <Form.Control
-            as="textarea"
-            rows={4}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="please enter your feedback"
-          />
-          <hr />
-          <Form.Control
-            type="file"
-            multiple
-            onChange={handleFileChange}
-            required
-          />
-          <br />
-          <Button
-            type="submit"
-            disabled={submitting}
-            variant="contained"
-            size="lg"
-            style={{
-              backgroundColor: theme === "light" ? "#111111" : "white",
-              color: theme === "light" ? "white" : "#111111",
-            }}
-          >
-            {submitting ? "Submitting..." : "Submit"}
-          </Button>
-        </Form>
-      </Stack>
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header
-          closeButton
-          style={{
-            backgroundColor: theme === "light" ? "white" : "#111111",
-            color: theme === "light" ? "#111111" : "white",
-          }}
-        >
-          <Modal.Title>Feedback submitted successfully, thank you.</Modal.Title>
-        </Modal.Header>
-        <Modal.Footer
-          style={{
-            backgroundColor: theme === "light" ? "white" : "#111111",
-            color: theme === "light" ? "#111111" : "white",
-          }}
-        >
-          <Button
-            variant="secondary"
-            onClick={() => setShowModal(false)}
-            style={{
-              backgroundColor: theme === "light" ? "white" : "#111111",
-              color: theme === "light" ? "#111111" : "white",
-            }}
-          >
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </Container>
+    </div>
   );
 };
+
 export default Profile;
