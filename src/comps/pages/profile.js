@@ -8,6 +8,7 @@ const Profile = () => {
   const { theme, toggleTheme } = useTheme();
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [userpic, setUserPic] = useState(null);
   const [userData, setUserData] = useState({});
   const [expandedSection, setExpandedSection] = useState(null);
@@ -42,8 +43,13 @@ const Profile = () => {
   const handleProfilePictureChange = (event) => {
     const file = event.target.files[0];
     if (!file) return;
-    const storageRef = firebase.storage().ref();
-    const fileRef = storageRef.child(`profile_pictures/${file.name}`);
+    setUploadError("");
+    const uid = firebase.auth().currentUser.uid;
+    const ext = file.name.split(".").pop();
+    const fileRef = firebase
+      .storage()
+      .ref()
+      .child(`profile_pictures/${uid}/profile.${ext}`);
     const uploadTask = fileRef.put(file);
 
     setUploading(true);
@@ -56,12 +62,31 @@ const Profile = () => {
       },
       (error) => {
         console.error("Error uploading profile picture:", error);
+        if (
+          error.code === "storage/unauthorized" ||
+          error.code === "storage/unauthenticated"
+        ) {
+          setUploadError("Permission denied. Please sign out and sign back in.");
+        } else {
+          setUploadError("Upload failed. Please try again.");
+        }
         setUploading(false);
       },
       () => {
         uploadTask.snapshot.ref.getDownloadURL().then((url) => {
           setUserPic(url);
           setUploading(false);
+          // Auto-save to Firestore
+          firebase
+            .firestore()
+            .collection("Users")
+            .doc(uid)
+            .update({ photoURL: url })
+            .then(() => setUserPic(null))
+            .catch((error) => {
+              console.error("Error updating profile picture:", error);
+              setUploadError("Picture uploaded but failed to save. Tap Save to retry.");
+            });
         });
       }
     );
@@ -243,6 +268,21 @@ const Profile = () => {
               }}
             />
           </div>
+        )}
+
+        {/* Upload error */}
+        {uploadError && (
+          <p
+            style={{
+              color: "#ef4444",
+              fontSize: "12px",
+              fontWeight: 500,
+              margin: "0 0 8px 0",
+              textAlign: "center",
+            }}
+          >
+            {uploadError}
+          </p>
         )}
 
         {/* Picture actions (only show when new pic selected) */}

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Container } from "react-bootstrap";
 import { Skeleton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import useGetResources from "../hooks/useGetResources";
 import { useTheme } from "../template/themeContext";
 import firebase from "../../firebase";
 
 const Resources = () => {
+  const navigate = useNavigate();
   const { docs: documents } = useGetResources();
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [opening, setOpening] = useState(false);
@@ -86,16 +88,44 @@ const Resources = () => {
         paddingRight: "16px",
       }}
     >
-      <h5
+      <div
         style={{
-          fontWeight: 700,
-          color: "#f76f25",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
           marginBottom: "20px",
-          fontSize: "16px",
         }}
       >
-        Resources
-      </h5>
+        <h5
+          style={{
+            fontWeight: 700,
+            color: "#f76f25",
+            fontSize: "16px",
+            margin: 0,
+          }}
+        >
+          Resources
+        </h5>
+        <button
+          onClick={() => navigate("/access-request")}
+          style={{
+            padding: "8px 14px",
+            borderRadius: "20px",
+            border: "none",
+            backgroundColor: "#f76f25",
+            color: "#ffffff",
+            fontSize: "12px",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <i className="bi bi-pencil-square" />
+          Request Access
+        </button>
+      </div>
 
       {loading ? (
         <div>

@@ -1,0 +1,36 @@
+[debug] [2026-02-08T22:29:19.193Z] ----------------------------------------------------------------------
+[debug] [2026-02-08T22:29:19.197Z] Command:       /usr/local/Cellar/node/24.10.0/bin/node /usr/local/bin/firebase deploy
+[debug] [2026-02-08T22:29:19.197Z] CLI Version:   14.15.2
+[debug] [2026-02-08T22:29:19.197Z] Platform:      darwin
+[debug] [2026-02-08T22:29:19.198Z] Node Version:  v24.10.0
+[debug] [2026-02-08T22:29:19.198Z] Time:          Mon Feb 09 2026 00:29:19 GMT+0200 (Central Africa Time)
+[debug] [2026-02-08T22:29:19.199Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-08T22:29:19.400Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-08T22:29:19.405Z] > authorizing via signed-in user (sandramasiwa1@gmail.com)
+[debug] [2026-02-08T22:29:19.408Z] [iam] checking project zanis-app for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]
+[debug] [2026-02-08T22:29:19.413Z] No OAuth tokens found
+[debug] [2026-02-08T22:29:19.414Z] No OAuth tokens found
+[debug] [2026-02-08T22:29:19.414Z] > refreshing access token with scopes: []
+[debug] [2026-02-08T22:29:19.416Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-08T22:29:19.416Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-08T22:29:20.279Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-02-08T22:29:20.281Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-08T22:29:20.291Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/zanis-app:testIamPermissions [none]
+[debug] [2026-02-08T22:29:20.291Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/zanis-app:testIamPermissions x-goog-quota-user=projects/zanis-app
+[debug] [2026-02-08T22:29:20.291Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/zanis-app:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]}
+[debug] [2026-02-08T22:29:22.279Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/zanis-app:testIamPermissions 200
+[debug] [2026-02-08T22:29:22.279Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/zanis-app:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update","firebaserules.releases.create","firebaserules.releases.update","firebaserules.rulesets.create"]}
+[debug] [2026-02-08T22:29:22.279Z] Checked if tokens are valid: true, expires at: 1770593359281
+[debug] [2026-02-08T22:29:22.279Z] Checked if tokens are valid: true, expires at: 1770593359281
+[debug] [2026-02-08T22:29:22.280Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/zanis-app [none]
+[debug] [2026-02-08T22:29:22.988Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/zanis-app 200
+[debug] [2026-02-08T22:29:22.988Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/zanis-app {"projectId":"zanis-app","projectNumber":"141780524287","displayName":"zanis-app","name":"projects/zanis-app","resources":{"hostingSite":"zanis-app","locationId":"us-central"},"state":"ACTIVE","etag":"1_aabf3308-f6ef-4efb-baf6-6f4208640ca1"}
+[info] 
+[info] === Deploying to 'zanis-app'...
+[info] 
+[info] i  deploying storage, firestore, hosting 
+[info] i  storage: ensuring required API firebasestorage.googleapis.com is enabled... 
+[debug] [2026-02-08T22:29:22.991Z] Checked if tokens are valid: true, expires at: 1770593359281
+[debug] [2026-02-08T22:29:22.991Z] Checked if tokens are valid: true, expires at: 1770593359281
+[debug] [2026-02-08T22:29:22.991Z] >>> [apiv2][query] GET https://firebasestorage.googleapis.com/v1alpha/projects/zanis-app/defaultBucket [none]

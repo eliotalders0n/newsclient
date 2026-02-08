@@ -259,7 +259,7 @@ function Landing() {
               {ministries.map((ministry) => (
                 <button
                   key={ministry.id}
-                  onClick={() => handleMinistryFilter(ministry.id)}
+                  onClick={() => handleMinistryFilter(ministry.name)}
                   style={{
                     flexShrink: 0,
                     padding: "8px 18px",
@@ -270,13 +270,13 @@ function Landing() {
                     cursor: "pointer",
                     whiteSpace: "nowrap",
                     backgroundColor:
-                      activeMinistry === ministry.id
+                      activeMinistry === ministry.name
                         ? isDark
                           ? "#ffffff"
                           : "#111111"
                         : cardBg,
                     color:
-                      activeMinistry === ministry.id
+                      activeMinistry === ministry.name
                         ? isDark
                           ? "#111111"
                           : "#ffffff"

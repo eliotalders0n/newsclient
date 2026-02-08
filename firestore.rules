@@ -2,8 +2,54 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write
+
+    // Users — anyone can read (for author info), authenticated users can create/update their own doc
+    match /Users/{userId} {
+      allow read: if true;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Articles — public read, no client writes (managed from admin)
+    match /Articles/{articleId} {
+      allow read: if true;
+    }
+
+    // Comments — public read, authenticated users can create
+    match /Comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+    }
+
+    // Reactions — public read, authenticated users can create/update
+    match /Reactions/{reactionId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+    }
+
+    // Ministries — public read
+    match /Ministries/{ministryId} {
+      allow read: if true;
+    }
+
+    // Podcasts — public read
+    match /Podcasts/{podcastId} {
+      allow read: if true;
+    }
+
+    // Resources — public read
+    match /Resources/{resourceId} {
+      allow read: if true;
+    }
+
+    // Access Requests — authenticated users can create, read their own
+    match /access_requests/{requestId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && resource.data.user == request.auth.uid;
+    }
+
+    // Feedback — authenticated users can create
+    match /Feedback/{feedbackId} {
+      allow create: if request.auth != null;
     }
   }
 }

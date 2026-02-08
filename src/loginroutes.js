@@ -7,6 +7,7 @@ import Navigation from "./comps/template/navigation";
 import Story from "./comps/pages/story";
 import Ministries from "./comps/pages/ministires";
 import Resources from "./comps/pages/resources";
+import AccessRequest from "./comps/pages/accessRequest";
 import Podcast from "./comps/pages/podcast";
 import PodcastList from "./comps/pages/podcastList";
 
@@ -31,6 +32,7 @@ function RoutesWrapper() {
         <Route path="/home" element={<Landing />} />
         <Route path="/reels" element={<ReelCard />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/access-request" element={<AccessRequest />} />
         <Route path="/story/:id" element={<Story />} />
       </Routes>
       {shouldShowNavigation && <Navigation />}

@@ -1,12 +1,37 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // Profile pictures — anyone can read, authenticated users write to their own folder
+    match /profile_pictures/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // Resources — public read (PDFs, documents)
+    match /resources/{fileName} {
+      allow read: if true;
+    }
+
+    // Podcasts — public read (audio files)
+    match /podcasts/{fileName} {
+      allow read: if true;
+    }
+
+    // Access request uploads — authenticated users can upload (max 10MB)
+    match /access_requests/{requestId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Article images and other media — public read
     match /{allPaths=**} {
-      allow read, write;
+      allow read: if true;
     }
   }
 }

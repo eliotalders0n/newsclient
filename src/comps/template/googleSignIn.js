@@ -17,6 +17,49 @@ const LoginPage = () => {
   const secondaryText = isDark ? "#999999" : "#666666";
   const cardBg = isDark ? "#1a1a1a" : "#f5f5f5";
 
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setSubmitting(true);
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await firebase.auth().signInWithPopup(provider);
+      // Create Users doc if first time
+      const userDoc = await firebase
+        .firestore()
+        .collection("Users")
+        .doc(result.user.uid)
+        .get();
+      if (!userDoc.exists) {
+        await firebase
+          .firestore()
+          .collection("Users")
+          .doc(result.user.uid)
+          .set({
+            firstName: result.user.displayName?.split(" ")[0] || "",
+            lastName: result.user.displayName?.split(" ").slice(1).join(" ") || "",
+            email: result.user.email || "",
+            photoURL: result.user.photoURL || "",
+            role: "user",
+            age: "",
+            contact: "",
+            gender: "",
+            address: "",
+            status: "Approved",
+            admin: false,
+          });
+      }
+      navigate("/home");
+    } catch (err) {
+      if (err.code === "auth/popup-closed-by-user") {
+        // User closed the popup, no error needed
+      } else {
+        setError("Google sign-in failed. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -196,6 +239,47 @@ const LoginPage = () => {
             {submitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
+
+        {/* Divider */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "16px",
+          }}
+        >
+          <div style={{ flex: 1, height: "1px", backgroundColor: cardBg }} />
+          <span style={{ fontSize: "12px", color: secondaryText }}>or</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: cardBg }} />
+        </div>
+
+        {/* Google Sign In */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={submitting}
+          style={{
+            width: "100%",
+            padding: "14px",
+            borderRadius: "14px",
+            border: `1px solid ${isDark ? "#333" : "#ddd"}`,
+            backgroundColor: "transparent",
+            color: fg,
+            fontSize: "15px",
+            fontWeight: 600,
+            cursor: submitting ? "wait" : "pointer",
+            opacity: submitting ? 0.7 : 1,
+            marginBottom: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+          }}
+        >
+          <i className="bi bi-google" style={{ fontSize: "16px" }} />
+          Sign in with Google
+        </button>
 
         {/* Register link */}
         <p
