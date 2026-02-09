@@ -127,9 +127,9 @@ const ReelItem = ({
   onBecomeActiveRef.current = onBecomeActive;
 
   // Resolve video src — handle both string and array
-  const videoSrc = Array.isArray(reel.imagesUrls)
-    ? reel.imagesUrls[0]
-    : reel.imagesUrls;
+  const videoSrc = Array.isArray(reel.videosUrls)
+    ? reel.videosUrls[0]
+    : reel.videosUrls;
 
   // Callback ref — also aborts downloads when the old video unmounts
   const setVideoElement = useCallback((el) => {

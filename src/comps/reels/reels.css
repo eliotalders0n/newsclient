@@ -1,0 +1,104 @@
+/* Vertical snap-scroll feed */
+.reels-feed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  background-color: #000;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.reels-feed::-webkit-scrollbar {
+  display: none;
+}
+
+.reel-item {
+  height: 100vh;
+  height: 100dvh;
+  scroll-snap-align: start;
+  position: relative;
+  overflow: hidden;
+  background-color: #000;
+}
+
+/* Play/pause indicator */
+@keyframes reelFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes reelFadeOut {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+.reel-play-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 32px;
+  pointer-events: none;
+  z-index: 10;
+  animation: reelFadeIn 0.15s ease forwards;
+}
+
+.reel-play-indicator.hiding {
+  animation: reelFadeOut 0.3s ease forwards;
+}
+
+/* Buffering indicator */
+.reel-buffering-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes reelSpin {
+  to { transform: rotate(360deg); }
+}
+
+.reel-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: reelSpin 0.8s linear infinite;
+}
+
+/* Share bottom sheet */
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes sheetFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.share-backdrop {
+  animation: sheetFadeIn 0.2s ease forwards;
+}
+
+.share-sheet {
+  animation: sheetSlideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}

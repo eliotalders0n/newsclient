@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../template/themeContext";
@@ -46,6 +46,44 @@ const AccessRequest = () => {
       transcription: false,
     },
   });
+
+  // Auto-fill from authenticated user data
+  useEffect(() => {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const prefill = {};
+    if (user.email) {
+      prefill.email = user.email;
+      prefill.notificationPreference = user.email;
+    }
+    if (user.displayName) {
+      prefill.requesterName = user.displayName;
+    }
+
+    // Fetch Firestore profile for richer data
+    firebase
+      .firestore()
+      .collection("Users")
+      .doc(user.uid)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.firstName || data.lastName) {
+            prefill.requesterName =
+              `${data.firstName || ""} ${data.lastName || ""}`.trim();
+          }
+          if (data.phone) prefill.phone = data.phone;
+          if (data.address) prefill.address = data.address;
+        }
+        setForm((prev) => ({ ...prev, ...prefill }));
+      })
+      .catch(() => {
+        // Still apply auth-level data if Firestore fetch fails
+        setForm((prev) => ({ ...prev, ...prefill }));
+      });
+  }, []);
 
   const [file, setFile] = useState(null);
 
